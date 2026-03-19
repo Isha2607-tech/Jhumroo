@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BiPlus } from 'react-icons/bi';
-import { FiEdit3 } from 'react-icons/fi';
+import { BiMessageSquareDetail } from 'react-icons/bi';
 
 const InboxPage = () => {
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const InboxPage = () => {
   };
 
   return (
-    <div className="page-container bg-black flex flex-col overflow-hidden text-white">
+    <div className="page-container theme-surface-page flex flex-col overflow-hidden text-white">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
         <div className="w-8" />
@@ -24,8 +23,8 @@ const InboxPage = () => {
           <h2 className="text-[16px] font-bold text-white">Inbox</h2>
           <div className="w-2 h-2 bg-[#FE2C55] rounded-full" />
         </div>
-        <button className="text-white active:opacity-60">
-          <FiEdit3 size={22} />
+        <button className="text-white active:opacity-60" onClick={() => navigate('/inbox/new-message')}>
+          <BiMessageSquareDetail size={22} />
         </button>
       </div>
 
@@ -75,7 +74,7 @@ const InboxPage = () => {
                     <span className="font-bold">Jenzp85</span> just viewed the video you shared. <span className="text-white/40">3d</span>
                   </p>
                   <div className="flex gap-2 mt-2">
-                    <button className="px-4 py-1.5 border border-white/20 text-white text-[12px] font-bold rounded-sm">Ignore</button>
+                    <button className="px-4 py-1.5 border border-white/35 text-white text-[12px] font-bold rounded-sm bg-transparent">Ignore</button>
                     <button className="px-4 py-1.5 bg-[#FE2C55] text-white text-[12px] font-bold rounded-sm">Follow back</button>
                   </div>
                 </div>
@@ -84,9 +83,8 @@ const InboxPage = () => {
            </div>
         </div>
 
-        {/* Messages Section */}
+        {/* Inbox Updates */}
         <div className="px-4">
-          <h3 className="text-[15px] font-bold text-white mb-3">Messages</h3>
           <div className="space-y-4">
              {/* New Followers */}
              <div 
@@ -166,4 +164,3 @@ const InboxPage = () => {
 };
 
 export default InboxPage;
-

@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import VideoCard from '../../components/video/VideoCard';
 import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
 
 const HomePage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const [currentTab, setCurrentTab] = useState('foryou');
   const containerRef = useRef(null);
@@ -33,7 +36,22 @@ const HomePage = () => {
     localStorage.setItem('hasSeenOnboarding', 'true');
   };
 
-  const displayedVideos = currentTab === 'foryou' ? mockVideos : mockFollowingVideos;
+  const isSearchFeed =
+    Array.isArray(location.state?.searchVideos) && location.state.searchVideos.length > 0;
+  const activeSearchVideoId = location.state?.activeVideoId;
+  const displayedVideos = isSearchFeed
+    ? location.state.searchVideos
+    : currentTab === 'foryou'
+      ? mockVideos
+      : mockFollowingVideos;
+
+  const handleTabChange = (nextTab) => {
+    setCurrentTab(nextTab);
+
+    if (isSearchFeed) {
+      navigate('/', { replace: true });
+    }
+  };
 
   useEffect(() => {
     // Force blur any active element (like keyboard) when landing on Home
@@ -72,7 +90,30 @@ const HomePage = () => {
     return () => {
       videoElements.forEach((el) => observer.unobserve(el));
     };
-  }, [currentTab]);
+  }, [currentTab, isSearchFeed, location.key]);
+
+  useEffect(() => {
+    if (!isSearchFeed || !activeSearchVideoId || !containerRef.current) {
+      return;
+    }
+
+    const selectedIndex = displayedVideos.findIndex(
+      (video) => String(video.id) === String(activeSearchVideoId),
+    );
+
+    if (selectedIndex < 0) {
+      return;
+    }
+
+    setActiveVideoIndex(selectedIndex);
+
+    requestAnimationFrame(() => {
+      const selectedCard = containerRef.current?.querySelector(
+        `[data-video-id="${activeSearchVideoId}"]`,
+      );
+      selectedCard?.scrollIntoView({ block: 'start' });
+    });
+  }, [activeSearchVideoId, displayedVideos, isSearchFeed]);
 
   return (
     <div className="relative w-full h-full bg-black">
@@ -89,7 +130,7 @@ const HomePage = () => {
           <span
             className={`text-[17px] font-semibold cursor-pointer pointer-events-auto transition-colors duration-200 relative shadow-black drop-shadow-md ${currentTab === 'following' ? 'text-white' : 'text-white/60'
               }`}
-            onClick={() => setCurrentTab('following')}
+            onClick={() => handleTabChange('following')}
           >
             Following
             {currentTab === 'following' && (
@@ -99,7 +140,7 @@ const HomePage = () => {
           <span
             className={`text-[17px] font-semibold cursor-pointer pointer-events-auto transition-colors duration-200 relative shadow-black drop-shadow-md ${currentTab === 'foryou' ? 'text-white' : 'text-white/60'
               }`}
-            onClick={() => setCurrentTab('foryou')}
+            onClick={() => handleTabChange('foryou')}
           >
             For You
             {currentTab === 'foryou' && (
@@ -117,7 +158,7 @@ const HomePage = () => {
 
       {/* Video Feed Wrapper */}
       <div
-        className="h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar touch-pan-y overscroll-none pb-[var(--bottom-nav-height)]"
+        className="h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar touch-pan-y overscroll-none"
         ref={containerRef}
       >
         {displayedVideos.map((video, index) => (
@@ -125,6 +166,7 @@ const HomePage = () => {
             key={video.id}
             className="video-card-wrapper h-full w-full snap-start snap-always"
             data-index={index}
+            data-video-id={video.id}
           >
             <VideoCard
               videoData={video}
@@ -194,4 +236,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-

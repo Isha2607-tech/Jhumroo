@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BiMenu, BiUserPlus, BiBookmark, BiLockAlt, BiHeart, BiArrowBack, BiBell } from 'react-icons/bi';
 import { BsGrid3X3 } from 'react-icons/bs';
 import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
+import { getLikedVideoIds } from '../../../../utils/likedVideos';
 
 const allVideos = [...mockVideos, ...mockFollowingVideos];
 
@@ -52,7 +53,7 @@ const VideoGrid = ({ videos }) => {
       {videos.map((video, idx) => (
         <div key={idx} className="relative aspect-[3/4] bg-divider/20 overflow-hidden group">
           <video src={video.url} poster={video.poster} loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 text-white text-[9px] font-bold drop-shadow-md">
+          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 text-white text-[9px] font-bold drop-shadow-md theme-on-media">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="0">
               <path d="M5 3l14 9-14 9z" />
             </svg>
@@ -85,14 +86,26 @@ const ProfilePage = () => {
     setShowSuggested(!showSuggested);
   };
 
+  const handleSuggestedAccountClick = (account) => {
+    if (account.type === 'user') {
+      navigate(`/user/${account.username}`);
+    }
+  };
+
   const profile = mockProfileData[displayUsername] || mockProfileData.default;
   const userVideos = allVideos.filter(v => v.username === displayUsername);
+  const visibleSuggestions = randomSuggestions.filter(
+    (account) => account.type !== 'user' || account.username !== displayUsername
+  );
   
   const savedIds = JSON.parse(localStorage.getItem('favorites') || '[]');
   const savedVideos = mockVideos.filter(v => savedIds.includes(v.id));
+  const likedIds = getLikedVideoIds(allVideos);
+  const likedVideos = allVideos.filter(v => likedIds.includes(v.id));
+  const handleOpenChat = () => navigate(`/inbox/chat/${displayUsername}`);
 
   return (
-    <div className="page-container bg-black flex flex-col">
+    <div className="page-container theme-surface-page flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/5 shrink-0">
         {isOwnProfile ? (
@@ -181,9 +194,13 @@ const ProfilePage = () => {
                 >
                   {isFollowing ? 'Following' : 'Follow'}
                 </button>
-                <button className="w-11 h-[42px] border border-white/30 rounded-[4px] flex items-center justify-center text-white active:bg-white/10 transition-colors">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="white" stroke="none"/>
+                <button
+                  onClick={handleOpenChat}
+                  className="w-11 h-[42px] border border-white/30 rounded-[4px] flex items-center justify-center text-white active:bg-white/10 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 2 11 13" />
+                    <path d="m22 2-7 20-4-9-9-4Z" />
                   </svg>
                 </button>
                 <button
@@ -207,7 +224,7 @@ const ProfilePage = () => {
         </div>
 
         {/* Random Suggested Accounts Section */}
-        {showSuggested && randomSuggestions.length > 0 && (
+        {showSuggested && visibleSuggestions.length > 0 && (
           <div className="px-4 pb-4 animate-fade-in-down">
             <div className="flex items-center justify-between mb-3 text-white">
               <div className="flex items-center gap-1.5 opacity-60">
@@ -218,8 +235,12 @@ const ProfilePage = () => {
             </div>
             
             <div className="flex gap-2.5 overflow-x-auto no-scrollbar snap-x pb-2">
-              {randomSuggestions.map(account => (
-                <div key={account.id} className="snap-start flex-none w-[130px] bg-white/5 rounded-md p-3 pb-4 flex flex-col items-center relative border border-white/5 shadow-sm h-[190px] justify-between">
+              {visibleSuggestions.map(account => (
+                <div
+                  key={account.id}
+                  className={`snap-start flex-none w-[130px] bg-white/5 rounded-md p-3 pb-4 flex flex-col items-center relative border border-white/5 shadow-sm h-[190px] justify-between ${account.type === 'user' ? 'cursor-pointer active:opacity-90' : ''}`}
+                  onClick={() => handleSuggestedAccountClick(account)}
+                >
                   <button className="absolute top-2.5 right-2.5 text-white/30 active:opacity-100 z-10 p-1" onClick={(e) => { e.stopPropagation(); setRandomSuggestions(prev => prev.filter(c => c.id !== account.id)) }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path d="M18 6L6 18M6 6l12 12"/>
@@ -252,9 +273,7 @@ const ProfilePage = () => {
                   
                   <button 
                     className="w-full py-[7px] mt-2 bg-[#FE2C55] text-white text-[13px] font-bold rounded-[4px] active:brightness-90 shadow-sm shrink-0"
-                    onClick={() => {
-                        if (account.type === 'user') navigate(`/user/${account.username}`);
-                    }}
+                    onClick={() => handleSuggestedAccountClick(account)}
                   >
                     {account.actionText || 'Follow'}
                   </button>
@@ -293,7 +312,7 @@ const ProfilePage = () => {
             >
               {tab.icon}
               {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white"></div>
+                <div className="theme-tab-indicator absolute bottom-0 left-0 w-full h-[2px]"></div>
               )}
             </div>
           ))}
@@ -314,8 +333,19 @@ const ProfilePage = () => {
             )
           )}
 
+          {activeTab === 'likes' && isOwnProfile && (
+            likedVideos.length > 0 ? (
+              <VideoGrid videos={likedVideos} />
+            ) : (
+              <div className="col-span-3 flex flex-col items-center justify-center py-20 gap-3 text-white/30">
+                <BiHeart size={48} opacity={0.5} />
+                <p className="text-sm">No liked videos yet</p>
+              </div>
+            )
+          )}
+
           {/* Locked / Empty states */}
-          {(activeTab === 'private' || activeTab === 'likes' || (!isOwnProfile && activeTab === 'saves')) && (
+          {(activeTab === 'private' || (!isOwnProfile && (activeTab === 'likes' || activeTab === 'saves'))) && (
             <div className="col-span-3 flex flex-col items-center justify-center py-20 gap-2 text-white/30">
               <BiLockAlt size={40} opacity={0.5} />
               <p className="text-sm">{isOwnProfile ? 'This section is empty' : `This user's content is private`}</p>
@@ -328,4 +358,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-

@@ -1,34 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BiChevronLeft, BiChevronRight, BiLock, BiAt, BiCommentDetail, BiArrowFromBottom, BiEnvelope, BiDownload, BiListUl } from 'react-icons/bi';
+import { getPrivacySettings, togglePrivateAccount } from '../../../../utils/privacySettings';
 
 const PrivacyPage = () => {
     const navigate = useNavigate();
-    const [isPrivate, setIsPrivate] = useState(false);
+    const [privacySettings, setPrivacySettings] = useState(() => getPrivacySettings());
 
     const privacySections = [
         {
             title: "Interactions",
             items: [
-                { icon: <BiCommentDetail size={20}/>, label: "Comments", value: "Everyone" },
-                { icon: <BiAt size={20}/>, label: "Mentions and tags", value: "Friends" },
-                { icon: <BiEnvelope size={20}/>, label: "Direct messages", value: "Friends" },
-                { icon: <BiArrowFromBottom size={20}/>, label: "Duet", value: "Everyone" },
-                { icon: <BiArrowFromBottom size={20} className="rotate-90"/>, label: "Stitch", value: "Everyone" },
-                { icon: <BiDownload size={20}/>, label: "Downloads", value: "On" }
+                { icon: <BiCommentDetail size={20}/>, label: "Comments", value: privacySettings.comments, route: "/settings/privacy/comments" },
+                { icon: <BiAt size={20}/>, label: "Mentions and tags", value: privacySettings.mentionsTags, route: "/settings/privacy/mentions-tags" },
+                { icon: <BiEnvelope size={20}/>, label: "Direct messages", value: privacySettings.directMessages, route: "/settings/privacy/direct-messages" },
+                { icon: <BiArrowFromBottom size={20}/>, label: "Duet", value: privacySettings.duet, route: "/settings/privacy/duet" },
+                { icon: <BiArrowFromBottom size={20} className="rotate-90"/>, label: "Stitch", value: privacySettings.stitch, route: "/settings/privacy/stitch" },
+                { icon: <BiDownload size={20}/>, label: "Downloads", value: privacySettings.downloads, route: "/settings/privacy/downloads" }
             ]
         },
         {
             title: "Safety",
             items: [
-                { icon: <BiListUl size={20}/>, label: "Blocked accounts" },
+                { icon: <BiListUl size={20}/>, label: "Blocked accounts", route: "/settings/privacy/blocked-accounts" },
                 { icon: <BiLock size={20}/>, label: "Private account", isToggle: true }
             ]
         }
     ];
 
+    const handleItemClick = (item) => {
+        if (item.isToggle) {
+            setPrivacySettings(togglePrivateAccount());
+            return;
+        }
+
+        if (item.route) {
+            navigate(item.route);
+        }
+    };
+
     return (
-        <div className="page-container bg-[#161616] flex flex-col min-h-screen">
+        <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen">
             {/* Header */}
             <div className="flex items-center justify-between px-4 pt-6 pb-6 shrink-0 relative border-b border-white/5">
                 <div 
@@ -52,7 +64,7 @@ const PrivacyPage = () => {
                                     <div 
                                         key={itemIdx} 
                                         className={`flex justify-between items-center p-4 active:bg-white/5 transition-colors cursor-pointer ${!isLast ? 'border-b border-white border-opacity-[0.05]' : ''}`}
-                                        onClick={item.isToggle ? () => setIsPrivate(!isPrivate) : undefined}
+                                        onClick={() => handleItemClick(item)}
                                     >
                                         <div className="flex items-center gap-3.5 text-white/90">
                                             <div className="opacity-70">{item.icon}</div>
@@ -62,8 +74,8 @@ const PrivacyPage = () => {
                                         <div className="flex items-center gap-2">
                                             {item.value && <span className="text-white/30 text-[14px]">{item.value}</span>}
                                             {item.isToggle ? (
-                                                <div className={`w-[46px] h-6 rounded-full flex items-center shrink-0 transition-colors duration-300 ${isPrivate ? 'bg-[#FE2C55]' : 'bg-transparent border border-white/20'}`}>
-                                                    <div className={`w-[18px] h-[18px] rounded-full bg-white shadow-sm transform transition-transform duration-300 ${isPrivate ? 'translate-x-[24px]' : 'translate-x-[2px]'}`}></div>
+                                                <div className={`w-[46px] h-6 rounded-full flex items-center shrink-0 transition-colors duration-300 ${privacySettings.privateAccount ? 'bg-[#FE2C55]' : 'bg-transparent border border-white/20'}`}>
+                                                    <div className={`w-[18px] h-[18px] rounded-full bg-white shadow-sm transform transition-transform duration-300 ${privacySettings.privateAccount ? 'translate-x-[24px]' : 'translate-x-[2px]'}`}></div>
                                                 </div>
                                             ) : (
                                                 <BiChevronRight size={22} className="text-white/30" />

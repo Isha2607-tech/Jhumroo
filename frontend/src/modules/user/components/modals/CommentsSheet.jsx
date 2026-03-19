@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { BiX, BiSend, BiHeart } from 'react-icons/bi';
 
+const QUICK_EMOJIS = ['😁', '🥰', '😂', '😳', '😉', '😅', '🥺'];
+
 const CommentsSheet = ({ isOpen, onClose, commentCount = 450 }) => {
   const [newComment, setNewComment] = useState('');
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
   const [commentsList, setCommentsList] = useState([
     { id: 1, user: 'dancing_queen', text: 'This is absolutely amazing! 🔥', time: '2h', likes: 124 },
     { id: 2, user: 'user123_cool', text: 'First! And this is so true 😂', time: '3h', likes: 89 },
@@ -32,14 +35,71 @@ const CommentsSheet = ({ isOpen, onClose, commentCount = 450 }) => {
     }
   };
 
+  const handleEmojiSelect = (emoji) => {
+    setNewComment((prev) => `${prev}${emoji}`);
+  };
+
   React.useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
+    if (!isOpen) {
       document.body.style.overflow = '';
+      setKeyboardOffset(0);
+      return;
     }
+
+    const body = document.body;
+    const root = document.getElementById('root');
+    const appShell = root?.firstElementChild;
+    const viewport = window.visualViewport;
+    const lockedHeight = Math.round(
+      appShell instanceof HTMLElement
+        ? appShell.getBoundingClientRect().height
+        : window.innerHeight
+    );
+
+    const previousBodyHeight = body.style.height;
+    const previousRootHeight = root?.style.height ?? '';
+    const previousAppShellHeight = appShell instanceof HTMLElement ? appShell.style.height : '';
+
+    body.style.overflow = 'hidden';
+    body.style.height = `${lockedHeight}px`;
+
+    if (root) {
+      root.style.height = `${lockedHeight}px`;
+    }
+
+    if (appShell instanceof HTMLElement) {
+      appShell.style.height = `${lockedHeight}px`;
+    }
+
+    const syncKeyboardOffset = () => {
+      if (!viewport) {
+        setKeyboardOffset(0);
+        return;
+      }
+
+      const nextOffset = Math.max(0, lockedHeight - viewport.height - viewport.offsetTop);
+      setKeyboardOffset(nextOffset);
+    };
+
+    syncKeyboardOffset();
+    viewport?.addEventListener('resize', syncKeyboardOffset);
+    viewport?.addEventListener('scroll', syncKeyboardOffset);
+
     return () => {
-      document.body.style.overflow = '';
+      viewport?.removeEventListener('resize', syncKeyboardOffset);
+      viewport?.removeEventListener('scroll', syncKeyboardOffset);
+      body.style.overflow = '';
+      body.style.height = previousBodyHeight;
+
+      if (root) {
+        root.style.height = previousRootHeight;
+      }
+
+      if (appShell instanceof HTMLElement) {
+        appShell.style.height = previousAppShellHeight;
+      }
+
+      setKeyboardOffset(0);
     };
   }, [isOpen]);
 
@@ -49,6 +109,7 @@ const CommentsSheet = ({ isOpen, onClose, commentCount = 450 }) => {
     <div className="absolute inset-0 z-[2000] flex flex-col justify-end bg-black/50 touch-none" onClick={onClose}>
       <div 
         className="w-full h-[70%] bg-surface rounded-t-[12px] flex flex-col animate-slide-up touch-auto" 
+        style={{ paddingBottom: keyboardOffset ? `${keyboardOffset}px` : undefined }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative p-4 border-b border-white/5 flex flex-col items-center">
@@ -82,6 +143,18 @@ const CommentsSheet = ({ isOpen, onClose, commentCount = 450 }) => {
         </div>
 
         <div className="p-4 border-t border-white/5 bg-surface pb-[max(1rem,var(--safe-area-bottom))]">
+            <div className="mb-3 -mx-1 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                {QUICK_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleEmojiSelect(emoji)}
+                    className="shrink-0 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[22px] hover:bg-white/10 active:scale-95 transition-all"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+            </div>
             <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-white/10">
                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=johnny_dance" alt="my avatar" className="w-full h-full object-cover" />

@@ -9,21 +9,21 @@ const HelpCenterPage = () => {
         {
             title: "Safety",
             items: [
-                { icon: <BiShield size={20}/>, label: "Safety Center" },
-                { icon: <BiSolidLockAlt size={20}/>, label: "Privacy and Security" }
+                { icon: <BiShield size={20}/>, label: "Safety Center", route: "/settings/help-center/safety-center" },
+                { icon: <BiSolidLockAlt size={20}/>, label: "Privacy and Security", route: "/settings/help-center/privacy-security" }
             ]
         },
         {
             title: "Support",
             items: [
-                { icon: <BiQuestionMark size={20}/>, label: "Report a problem" },
-                { icon: <BiMessageDetail size={20}/>, label: "Help center" }
+                { icon: <BiQuestionMark size={20}/>, label: "Report a problem", route: "/settings/help-center/report-problem" },
+                { icon: <BiMessageDetail size={20}/>, label: "Help center", route: "/settings/help-center/articles" }
             ]
         }
     ];
 
     return (
-        <div className="page-container bg-[#161616] flex flex-col min-h-screen font-sans">
+        <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen font-sans">
             {/* Header */}
             <div className="flex items-center justify-between px-4 pt-6 pb-6 shrink-0 relative border-b border-white/5">
                 <div 
@@ -52,6 +52,7 @@ const HelpCenterPage = () => {
                                     <div 
                                         key={itemIdx} 
                                         className={`flex justify-between items-center p-4 active:bg-white/5 transition-colors cursor-pointer ${!isLast ? 'border-b border-white border-opacity-[0.05]' : ''}`}
+                                        onClick={() => navigate(item.route)}
                                     >
                                         <div className="flex items-center gap-3.5 text-white/90">
                                             <div className="opacity-70">{item.icon}</div>

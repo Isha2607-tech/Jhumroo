@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BiChevronLeft, BiChevronRight, BiUser, BiLockAlt, BiShieldAlt, BiBell, BiMoon, BiGlobe, BiQuestionMark, BiLogOut } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../../../context/ThemeContext';
 
 const SettingsPage = () => {
     const navigate = useNavigate();
-    const [isDarkMode, setIsDarkMode] = useState(true);
+    const { isDarkMode, toggleTheme } = useTheme();
 
     const sections = [
         {
@@ -34,14 +35,14 @@ const SettingsPage = () => {
 
     const handleItemClick = (item) => {
         if (item.isToggle) {
-            setIsDarkMode(!isDarkMode);
+            toggleTheme();
         } else if (item.route) {
             navigate(item.route);
         }
     };
 
     return (
-        <div className="page-container bg-[#161616] flex flex-col min-h-screen">
+        <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen">
             {/* Header */}
             <div className="flex items-center justify-between px-4 pt-6 pb-6 shrink-0 relative">
                 <div 

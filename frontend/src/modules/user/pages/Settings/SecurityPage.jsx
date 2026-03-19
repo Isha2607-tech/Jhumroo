@@ -1,29 +1,63 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BiChevronLeft, BiChevronRight, BiShieldAlt, BiKey, BiShield } from 'react-icons/bi';
+import {
+  getDevicesSummary,
+  getPasswordSummary,
+  getSecurityAlertsSummary,
+  getTwoStepSummary,
+} from '../../../../utils/securitySettings';
 
 const SecurityPage = () => {
     const navigate = useNavigate();
+    const securityAlertsSummary = getSecurityAlertsSummary();
 
     const securitySections = [
         {
             title: "Security Status",
             items: [
-                { icon: <BiShieldAlt size={20}/>, label: "Security alerts", value: "No issues", color: "#4CD964" },
-                { icon: <BiShield size={20}/>, label: "Your devices", value: "3 active" }
+                {
+                  icon: <BiShieldAlt size={20}/>,
+                  label: "Security alerts",
+                  value: securityAlertsSummary.value,
+                  color: securityAlertsSummary.color,
+                  route: "/settings/security/alerts",
+                },
+                {
+                  icon: <BiShield size={20}/>,
+                  label: "Your devices",
+                  value: getDevicesSummary(),
+                  route: "/settings/security/devices",
+                }
             ]
         },
         {
             title: "Login Security",
             items: [
-                { icon: <BiKey size={20}/>, label: "Password" },
-                { icon: <BiShield size={20}/>, label: "2-step verification", value: "Off" }
+                {
+                  icon: <BiKey size={20}/>,
+                  label: "Password",
+                  value: getPasswordSummary(),
+                  route: "/settings/security/password",
+                },
+                {
+                  icon: <BiShield size={20}/>,
+                  label: "2-step verification",
+                  value: getTwoStepSummary(),
+                  route: "/settings/security/two-step-verification",
+                }
             ]
         }
     ];
 
+    const handleItemClick = (item) => {
+        if (item.route) {
+            navigate(item.route);
+        }
+    };
+
     return (
-        <div className="page-container bg-[#161616] flex flex-col min-h-screen">
+        <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen">
             {/* Header */}
             <div className="flex items-center justify-between px-4 pt-6 pb-6 shrink-0 relative border-b border-white/5">
                 <div 
@@ -47,6 +81,7 @@ const SecurityPage = () => {
                                     <div 
                                         key={itemIdx} 
                                         className={`flex justify-between items-center p-4 active:bg-white/5 transition-colors cursor-pointer ${!isLast ? 'border-b border-white border-opacity-[0.05]' : ''}`}
+                                        onClick={() => handleItemClick(item)}
                                     >
                                         <div className="flex items-center gap-3.5 text-white/90">
                                             <div className="opacity-70">{item.icon}</div>

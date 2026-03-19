@@ -35,12 +35,16 @@ const generateUserLists = (username) => {
 const UserCard = ({ user }) => {
   const [following, setFollowing] = useState(false);
   const navigate = useNavigate();
+  const handleOpenProfile = () => navigate(`/user/${user.username}`);
 
   return (
-    <div className="flex items-center px-4 py-3 gap-3">
+    <div
+      className="flex items-center px-4 py-3 gap-3 cursor-pointer active:opacity-80"
+      onClick={handleOpenProfile}
+    >
       <div
         className="w-12 h-12 rounded-full overflow-hidden shrink-0 cursor-pointer active:opacity-70 border border-white/10 p-0.5"
-        onClick={() => navigate(`/user/${user.username}`)}
+        onClick={handleOpenProfile}
       >
         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} alt={user.username} className="w-full h-full object-cover rounded-full" />
       </div>
@@ -49,7 +53,10 @@ const UserCard = ({ user }) => {
         <p className="text-white/40 text-[12px] truncate">{user.followers} followers</p>
       </div>
       <button
-        onClick={() => setFollowing(f => !f)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setFollowing(f => !f);
+        }}
         className={`px-5 py-1.5 rounded-md text-[13px] font-bold transition-all active:scale-95 shrink-0 ${
           following
             ? 'border border-white/30 text-white bg-transparent'
@@ -87,7 +94,7 @@ const FollowersPage = () => {
   const currentUsers = usersObj[activeTab] || [];
 
   return (
-    <div className="page-container bg-black flex flex-col">
+    <div className="page-container theme-surface-page flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 shrink-0">
         <button onClick={() => navigate(-1)} className="text-white active:opacity-60 w-8">
@@ -111,7 +118,7 @@ const FollowersPage = () => {
           >
             {tab.label}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white rounded-t-sm" />
+              <div className="theme-tab-indicator absolute bottom-0 left-0 w-full h-[2px] rounded-t-sm" />
             )}
           </button>
         ))}

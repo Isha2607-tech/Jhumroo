@@ -13,7 +13,7 @@ const VideoOverlay = ({ username, caption, musicName, isLiked, likes, comments, 
   return (
     <>
       <div className="absolute inset-0 pointer-events-none flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10">
-        <div className="flex justify-between items-end p-4 pointer-events-auto">
+        <div className="flex justify-between items-end p-4 pb-[calc(var(--bottom-nav-height)+8px)] pointer-events-auto">
           {/* Left: User info */}
           <div className="flex-1 pr-12 text-left text-white">
             {/* Username — clickable → user profile */}

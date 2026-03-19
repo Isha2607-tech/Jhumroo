@@ -1,10 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import VideoOverlay from './VideoOverlay';
 import AddToFavoritesModal from '../modals/AddToFavoritesModal';
+import { isVideoLiked, setVideoLikedState } from '../../../../utils/likedVideos';
+import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
+
+const allVideos = [...mockVideos, ...mockFollowingVideos];
 
 const VideoCard = ({ videoData, isActive }) => {
   const [playing, setPlaying] = useState(false);
-  const [isLiked, setIsLiked] = useState(videoData.isLiked);
+  const [isLiked, setIsLiked] = useState(() => isVideoLiked(videoData.id, allVideos));
   const [likesCount, setLikesCount] = useState(videoData.likes || 0);
   const videoRef = useRef(null);
   const lastTapRef = useRef(0);
@@ -51,6 +55,7 @@ const VideoCard = ({ videoData, isActive }) => {
   const handleLikeClick = () => {
     setIsLiked(prev => {
       const nextLiked = !prev;
+      setVideoLikedState(videoData.id, nextLiked, allVideos);
       let numLikes = parseFloat(likesCount);
       if (!isNaN(numLikes)) {
           setLikesCount(`${(nextLiked ? numLikes + 0.1 : numLikes - 0.1).toFixed(1)}M`);
@@ -61,6 +66,7 @@ const VideoCard = ({ videoData, isActive }) => {
 
   const handleDoubleClick = (e) => {
       if (!isLiked) {
+         setVideoLikedState(videoData.id, true, allVideos);
          setIsLiked(true);
          let numLikes = parseFloat(likesCount);
          if (!isNaN(numLikes)) {

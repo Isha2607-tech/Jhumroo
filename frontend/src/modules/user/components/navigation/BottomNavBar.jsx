@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { BiHomeAlt, BiSearch, BiMessageSquareDetail, BiUser } from 'react-icons/bi';
+import { useTheme } from '../../../../context/ThemeContext';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Home', icon: BiHomeAlt, type: 'link' },
@@ -10,7 +11,7 @@ const NAV_ITEMS = [
   { path: '/profile', label: 'Profile', icon: BiUser, type: 'link' },
 ];
 
-const NavItem = ({ item, isActive }) => {
+const NavItem = ({ item, isActive, isDarkMode }) => {
   if (item.type === 'create') {
     return (
       <NavLink to={item.path} className="flex-1 flex flex-col items-center justify-center pt-1 transition-transform active:scale-95 duration-200 will-change-transform">
@@ -40,7 +41,11 @@ const NavItem = ({ item, isActive }) => {
         <Icon 
           size={22} 
           className={`transition-colors duration-300 ease-in-out ${
-            isActive ? 'text-[#FE2C55] drop-shadow-[0_0_8px_rgba(254,44,85,0.4)]' : 'text-white/70'
+            isActive
+              ? 'text-[#FE2C55] drop-shadow-[0_0_8px_rgba(254,44,85,0.4)]'
+              : isDarkMode
+                ? 'text-white/70'
+                : 'text-black/55'
           }`} 
         />
         {item.badge && (
@@ -50,7 +55,13 @@ const NavItem = ({ item, isActive }) => {
         )}
       </div>
       <span className={`text-[10px] mt-0.5 transition-all duration-300 ease-in-out ${
-        isActive ? 'text-white font-bold opacity-100 drop-shadow-md' : 'text-white/70 opacity-80'
+        isActive
+          ? isDarkMode
+            ? 'text-white font-bold opacity-100 drop-shadow-md'
+            : 'text-black font-bold opacity-100'
+          : isDarkMode
+            ? 'text-white/70 opacity-80'
+            : 'text-black/55 opacity-90'
       }`}>
         {item.label}
       </span>
@@ -59,11 +70,15 @@ const NavItem = ({ item, isActive }) => {
 };
 
 const BottomNavBar = ({ isDarkTheme = true }) => {
+  const { isDarkMode } = useTheme();
   const location = useLocation();
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const index = NAV_ITEMS.findIndex(item => {
+      if (item.path === '/profile') {
+        return location.pathname === '/profile' || /^\/user\/[^/]+$/.test(location.pathname);
+      }
       if (item.path === '/') return location.pathname === '/';
       return location.pathname.startsWith(item.path);
     });
@@ -75,9 +90,11 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
   }, [location.pathname]);
 
   const containerClasses = `absolute bottom-0 left-0 w-full h-[var(--bottom-nav-height)] z-[1000] flex justify-around items-center transition-all duration-300 pb-[var(--safe-area-bottom)] ${
-    isDarkTheme 
+    isDarkTheme && isDarkMode
       ? 'bg-black/85 backdrop-blur-md border-t border-white/10 text-white/70 shadow-[0_-5px_15px_rgba(0,0,0,0.5)]' 
-      : 'bg-gradient-to-t from-black via-black/80 to-transparent text-white/90 backdrop-blur-sm'
+      : isDarkMode
+        ? 'bg-black text-white/90'
+        : 'theme-bottom-nav bg-white/92 text-black/80 border-t border-black/10 backdrop-blur-md shadow-[0_-5px_18px_rgba(15,23,42,0.08)]'
   }`;
 
   return (
@@ -100,6 +117,7 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
           key={item.path}
           item={item}
           isActive={activeIndex === index}
+          isDarkMode={isDarkMode}
         />
       ))}
     </nav>
@@ -107,4 +125,3 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
 };
 
 export default BottomNavBar;
-

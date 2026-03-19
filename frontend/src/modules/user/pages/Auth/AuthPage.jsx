@@ -15,7 +15,7 @@ import logo from '../../../../assets/loginPage/Logo.png';
 
 const BackgroundWrapper = ({ children, blur = false }) => (
   <div className="relative h-full w-full overflow-hidden bg-black">
-    <div 
+    <div
       className={`absolute inset-0 bg-cover bg-center transition-all duration-700 ${blur ? 'blur-[8px] scale-110' : 'blur-0 scale-100'}`}
       style={{ backgroundImage: `url(${loginBg})` }}
     />
@@ -43,8 +43,8 @@ const PrimaryButton = ({ onClick, children, variant = 'solid', disabled = false,
   };
 
   return (
-    <button 
-      onClick={onClick} 
+    <button
+      onClick={onClick}
       disabled={disabled}
       className={`${baseStyles} ${variants[variant]} ${disabled ? 'opacity-50 grayscale' : ''} ${className}`}
     >
@@ -92,9 +92,8 @@ const PickerColumn = ({ items, selectedIndex, onChange }) => {
         {items.map((item, i) => (
           <div
             key={i}
-            className={`flex items-center justify-center text-[13px] transition-all cursor-pointer select-none ${
-              i === selectedIndex ? 'text-white font-bold text-[15px]' : 'text-gray-500'
-            }`}
+            className={`flex items-center justify-center text-[13px] transition-all cursor-pointer select-none ${i === selectedIndex ? 'text-white font-bold text-[15px]' : 'text-gray-500'
+              }`}
             style={{ height: `${ITEM_H}px`, scrollSnapAlign: 'center' }}
             onClick={() => onChange(i)}
           >
@@ -108,36 +107,36 @@ const PickerColumn = ({ items, selectedIndex, onChange }) => {
 };
 
 /* ──────────────── Auth Page ──────────────── */
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
 const YEARS = Array.from({ length: 60 }, (_, i) => 2025 - i);
 
 const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Set mode based on current URL path
   const [mode, setMode] = useState(location.pathname === '/login' ? 'login' : initialMode);
-  
+
   // Steps: 1=Welcome, 2=Methods, 3=Birthday, 4=PhoneInput, 5=OTP
   const [step, setStep] = useState(
     (location.pathname === '/signup' || location.pathname === '/login') ? 2 : 1
   );
-  
+
   // Sync mode and step with URL changes
   useEffect(() => {
     const p = location.pathname;
     const currentMode = p === '/login' ? 'login' : 'signup';
     setMode(currentMode);
-    
+
     // Explicitly set step based on route
     if (p === '/login' || p === '/signup') {
-        setStep(2); 
+      setStep(2);
     } else if (p === '/' || p === '' || p === '/welcome' || p.includes('index.html')) {
-        setStep(1); // Force welcome screen on root or /welcome
+      setStep(1); // Force welcome screen on root or /welcome
     } else {
-        // For any other subroutes during auth, keep as welcome or default to methods
-        setStep(1);
+      // For any other subroutes during auth, keep as welcome or default to methods
+      setStep(1);
     }
   }, [location.pathname]);
 
@@ -147,7 +146,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   const [birthdaySelected, setBirthdaySelected] = useState(false);
   const [showBirthdayPrompt, setShowBirthdayPrompt] = useState(false);
   const [showAccountNotFound, setShowAccountNotFound] = useState(false);
-  
+
   // Auth state
   const [phoneNumber, setPhoneNumber] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState('');
@@ -173,18 +172,26 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
       document.activeElement.blur();
     }
     onComplete();
-    navigate('/'); 
+    navigate('/');
   }, [onComplete, navigate]);
 
   /* ─── Step 1: New Welcome Screen ─── */
   if (step === 1) {
     return (
       <BackgroundWrapper>
-        <div className="flex-1 flex flex-col items-center justify-between px-8 py-16">
+        <div className="flex-1 flex flex-col items-start justify-between px-8 py-16">
           {/* Logo Section */}
-          <div className="flex flex-col items-center animate-fade-in mt-16">
-            <p className="text-gray-300 text-lg font-medium tracking-wide mb-1">Welcome to</p>
-            <h1 className="text-4xl font-black text-white tracking-tighter text-center">
+          <div className="flex flex-col items-start animate-fade-in mt-16">
+            <p className="text-gray-300 text-2xl font-semibold tracking-wide mb-2">Welcome to</p>
+            <h1
+              className="text-white tracking-tight text-left"
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 'clamp(2.4rem, 10vw, 3.2rem)',
+                fontWeight: 900,
+                lineHeight: 1.1,
+              }}
+            >
               The Jhumroo App
             </h1>
           </div>
@@ -209,55 +216,55 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   /* ─── Step 2: Auth Methods ─── */
   if (step === 2) {
     const methods = [
-      { 
-        id: 'phone', 
-        icon: <BiUser size={22} className="text-white shrink-0" />, 
-        label: "Use phone or email", 
-        onClick: () => setStep(mode === 'signup' ? 3 : 4) 
+      {
+        id: 'phone',
+        icon: <BiUser size={22} className="text-white shrink-0" />,
+        label: "Use phone or email",
+        onClick: () => setStep(mode === 'signup' ? 3 : 4)
       },
-      { 
-        id: 'facebook', 
-        icon: <FaFacebook size={22} className="text-white shrink-0" />, 
+      {
+        id: 'facebook',
+        icon: <FaFacebook size={22} className="text-white shrink-0" />,
         label: "Continue with Facebook",
         className: "hover:bg-[#1877F2]/20"
       },
-      { 
-        id: 'apple', 
-        icon: <FaApple size={22} className="text-white shrink-0" />, 
+      {
+        id: 'apple',
+        icon: <FaApple size={22} className="text-white shrink-0" />,
         label: "Continue with Apple",
         className: "hover:bg-white/10"
       },
-      { 
-        id: 'google', 
-        icon: <FcGoogle size={24} className="shrink-0" />, 
+      {
+        id: 'google',
+        icon: <FcGoogle size={24} className="shrink-0" />,
         label: "Continue with Google",
         onClick: mode === 'login' ? () => setShowAccountNotFound(true) : undefined,
         className: "hover:bg-white/10"
       },
-      { 
-        id: 'twitter', 
-        icon: <FaTwitter size={22} className="text-white shrink-0" />, 
+      {
+        id: 'twitter',
+        icon: <FaTwitter size={22} className="text-white shrink-0" />,
         label: "Continue with Twitter",
         className: "hover:bg-[#1DA1F2]/20"
       }
     ];
 
-    const filteredMethods = mode === 'login' 
+    const filteredMethods = mode === 'login'
       ? methods.filter(m => m.id === 'phone' || m.id === 'google')
       : methods;
 
     return (
       <BackgroundWrapper blur>
         <div className="flex-1 flex flex-col justify-end p-6">
-          <AuthCard 
-            title={mode === 'signup' ? "Sign up" : "Log in"} 
+          <AuthCard
+            title={mode === 'signup' ? "Sign up" : "Log in"}
             subtitle="Choose a method to continue your journey"
           >
             <div className="flex flex-col gap-3">
               {filteredMethods.map((m, i) => (
-                <button 
-                  key={i} 
-                  onClick={m.onClick} 
+                <button
+                  key={i}
+                  onClick={m.onClick}
                   className={`w-full h-[54px] flex items-center border border-white/10 rounded-2xl active:scale-[0.98] transition-all bg-white/5 relative group ${m.className || ''}`}
                 >
                   <div className="absolute left-[16px] flex items-center justify-center">
@@ -280,7 +287,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
               </p>
             </div>
           </AuthCard>
-          
+
           <div className="h-8" /> {/* Spacer for bottom nav area if needed */}
         </div>
 
@@ -321,7 +328,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
               <BiChevronLeft size={28} />
             </button>
           </div>
-          
+
           <div className="flex-1 flex flex-col justify-end p-6">
             <AuthCard title="When's your birthday?" subtitle="Your birthday won't be shown publicly.">
               <div className="flex items-center gap-4 mb-8">
@@ -332,7 +339,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
                 </div>
                 <div className="w-14 h-14 bg-[#fe2c55]/10 rounded-2xl flex items-center justify-center text-3xl">🎂</div>
               </div>
-              
+
               <PrimaryButton onClick={handleNextBirthday} disabled={!birthdaySelected}>
                 Next Step
               </PrimaryButton>
@@ -383,7 +390,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
               <BiChevronLeft size={28} />
             </button>
           </div>
-          
+
           <div className="flex-1 flex flex-col justify-between">
             <div className="p-6">
               {step === 4 ? (

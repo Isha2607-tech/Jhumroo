@@ -63,7 +63,7 @@ const ActivityItem = ({ item }) => {
           )}
           {item.type === 'view' && (
             <>
-              <button className="px-4 py-1.5 border border-white/20 rounded-sm text-[12px] font-bold text-white active:bg-white/5 bg-transparent">
+              <button className="px-4 py-1.5 border border-white/35 rounded-sm text-[12px] font-bold text-white active:bg-white/5 bg-transparent">
                 Ignore
               </button>
               <button
@@ -93,7 +93,7 @@ const AllActivityPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="page-container bg-black flex flex-col">
+    <div className="page-container theme-surface-page flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 shrink-0">
         <button onClick={() => navigate(-1)} className="text-white active:opacity-60 w-8">
