@@ -4,6 +4,7 @@ import { BiMenu, BiUserPlus, BiBookmark, BiLockAlt, BiHeart, BiArrowBack, BiBell
 import { BsGrid3X3 } from 'react-icons/bs';
 import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
 import { getLikedVideoIds } from '../../../../utils/likedVideos';
+import { useTheme } from '../../../../context/ThemeContext';
 
 const allVideos = [...mockVideos, ...mockFollowingVideos];
 
@@ -36,7 +37,7 @@ const generateRandomSuggestions = () => {
     { id: 6, type: 'user', username: 'bellapoar', name: 'Bella Poarch', verified: true, subtitle: '93M followers' },
     { id: 7, type: 'user', username: 'willsmith', name: 'Will Smith', verified: true, subtitle: '74.2M followers' },
   ];
-  return suggestions.sort(() => Math.random() - 0.5).slice(0, 6); 
+  return suggestions.sort(() => Math.random() - 0.5).slice(0, 6);
 };
 
 const VideoGrid = ({ videos }) => {
@@ -66,16 +67,16 @@ const VideoGrid = ({ videos }) => {
 };
 
 const ProfilePage = () => {
+  const { isDarkMode } = useTheme();
   const { username } = useParams();
   const navigate = useNavigate();
-  
+
   const isOwnProfile = !username || username === 'johnny_dance';
   const displayUsername = isOwnProfile ? 'johnny_dance' : username;
-  
+
   const [activeTab, setActiveTab] = useState('videos');
   const [isFollowing, setIsFollowing] = useState(false);
-  
-  // Suggested accounts logic
+
   const [showSuggested, setShowSuggested] = useState(false);
   const [randomSuggestions, setRandomSuggestions] = useState([]);
 
@@ -97,7 +98,7 @@ const ProfilePage = () => {
   const visibleSuggestions = randomSuggestions.filter(
     (account) => account.type !== 'user' || account.username !== displayUsername
   );
-  
+
   const savedIds = JSON.parse(localStorage.getItem('favorites') || '[]');
   const savedVideos = mockVideos.filter(v => savedIds.includes(v.id));
   const likedIds = getLikedVideoIds(allVideos);
@@ -111,7 +112,10 @@ const ProfilePage = () => {
         {isOwnProfile ? (
           <>
             <BiUserPlus size={24} className="text-white cursor-pointer active:opacity-70" />
-            <h2 className="text-[16px] font-bold text-white tracking-wide flex items-center gap-1">@{displayUsername} <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg></h2>
+            <h2 className="text-[16px] font-bold text-white tracking-wide flex items-center gap-1">
+              @{displayUsername}
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg>
+            </h2>
             <BiMenu size={28} className="text-white cursor-pointer active:opacity-70" onClick={() => navigate('/settings')} />
           </>
         ) : (
@@ -134,13 +138,13 @@ const ProfilePage = () => {
           <div className="relative w-[100px] h-[100px] rounded-full p-1 mb-3">
             <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${displayUsername}`} alt="avatar" className="w-full h-full rounded-full object-cover bg-white/10" />
             {isOwnProfile && (
-                <div className="absolute right-0 bottom-0 w-6 h-6 bg-[#20D5EC] rounded-full border-2 border-black flex items-center justify-center text-white cursor-pointer shadow-sm">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
-                </div>
+              <div className="absolute right-0 bottom-0 w-6 h-6 bg-[#20D5EC] rounded-full border-2 border-black flex items-center justify-center text-white cursor-pointer shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
+              </div>
             )}
           </div>
           <p className="text-[15px] font-bold text-white mb-4">@{displayUsername}</p>
-          
+
           {/* Stats */}
           <div className="flex gap-10 mb-5">
             {[
@@ -148,8 +152,8 @@ const ProfilePage = () => {
               { label: 'Followers', value: profile.followers, tabId: 'followers' },
               { label: 'Likes', value: profile.likes },
             ].map(stat => (
-              <div 
-                key={stat.label} 
+              <div
+                key={stat.label}
                 className="flex flex-col items-center cursor-pointer active:opacity-70"
                 onClick={() => {
                   if (stat.tabId) {
@@ -167,13 +171,17 @@ const ProfilePage = () => {
           <div className="flex items-center gap-1.5 w-full max-w-[320px] mb-4">
             {isOwnProfile ? (
               <>
-                <button 
+                <button
                   onClick={() => navigate('/settings/edit-profile')}
-                  className="flex-1 py-3 h-[42px] bg-white/10 text-white text-[14px] font-semibold flex items-center justify-center rounded-[4px] active:bg-white/20 transition-colors border border-white/5"
+                  className={`flex-1 py-3 h-[42px] text-[14px] font-semibold flex items-center justify-center rounded-[4px] border transition-all duration-300 ease-in-out active:scale-[0.98] active:brightness-90 ${
+                    isDarkMode
+                      ? 'bg-white/10 border-white/5 text-white hover:bg-[#FE2C55] hover:border-[#FE2C55] hover:shadow-[0_4px_12px_rgba(254,44,85,0.3)]'
+                      : 'bg-[#FE2C55] border-[#FE2C55] text-white shadow-[0_4px_12px_rgba(254,44,85,0.25)] hover:brightness-110'
+                  }`}
                 >
-                   Edit profile
+                  Edit profile
                 </button>
-                <button 
+                <button
                   onClick={handleToggleSuggested}
                   className="w-11 h-[42px] bg-white/10 rounded-[4px] flex items-center justify-center text-white active:bg-white/20 transition-colors border border-white/5"
                 >
@@ -228,12 +236,12 @@ const ProfilePage = () => {
           <div className="px-4 pb-4 animate-fade-in-down">
             <div className="flex items-center justify-between mb-3 text-white">
               <div className="flex items-center gap-1.5 opacity-60">
-                 <span className="text-[13px] font-semibold">Suggested accounts</span>
-                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                <span className="text-[13px] font-semibold">Suggested accounts</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               </div>
               <span className="text-[13px] font-semibold opacity-60 active:opacity-100 cursor-pointer" onClick={() => navigate(`/user/${displayUsername}/followers`, { state: { activeTab: 'suggested' } })}>View all <span className="text-[10px]">&gt;</span></span>
             </div>
-            
+
             <div className="flex gap-2.5 overflow-x-auto no-scrollbar snap-x pb-2">
               {visibleSuggestions.map(account => (
                 <div
@@ -241,37 +249,37 @@ const ProfilePage = () => {
                   className={`snap-start flex-none w-[130px] bg-white/5 rounded-md p-3 pb-4 flex flex-col items-center relative border border-white/5 shadow-sm h-[190px] justify-between ${account.type === 'user' ? 'cursor-pointer active:opacity-90' : ''}`}
                   onClick={() => handleSuggestedAccountClick(account)}
                 >
-                  <button className="absolute top-2.5 right-2.5 text-white/30 active:opacity-100 z-10 p-1" onClick={(e) => { e.stopPropagation(); setRandomSuggestions(prev => prev.filter(c => c.id !== account.id)) }}>
+                  <button className="absolute top-2.5 right-2.5 text-white/30 active:opacity-100 z-10 p-1" onClick={(e) => { e.stopPropagation(); setRandomSuggestions(prev => prev.filter(c => c.id !== account.id)); }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path d="M18 6L6 18M6 6l12 12"/>
                     </svg>
                   </button>
-                  
+
                   {account.type === 'platform' ? (
-                     <div className={`w-[72px] h-[72px] rounded-full flex items-center justify-center mb-1 mt-1 shrink-0 ${account.color}`}>
-                        {account.platform === 'Facebook' ? (
-                           <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                        ) : (
-                           <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z"/></svg>
-                        )}
-                     </div>
+                    <div className={`w-[72px] h-[72px] rounded-full flex items-center justify-center mb-1 mt-1 shrink-0 ${account.color}`}>
+                      {account.platform === 'Facebook' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z"/></svg>
+                      )}
+                    </div>
                   ) : (
-                     <div className="w-[72px] h-[72px] rounded-full overflow-hidden mb-1 mt-1 shrink-0 bg-white/10">
-                       <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${account.username}`} alt="" className="w-full h-full object-cover" />
-                     </div>
+                    <div className="w-[72px] h-[72px] rounded-full overflow-hidden mb-1 mt-1 shrink-0 bg-white/10">
+                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${account.username}`} alt="" className="w-full h-full object-cover" />
+                    </div>
                   )}
-                  
+
                   <div className="w-full flex flex-col items-center mt-1 flex-1">
-                      <div className="flex items-center justify-center w-full">
-                         <p className="text-white text-[13px] font-bold text-center truncate pr-[2px]">{account.name}</p>
-                         {account.verified && (
-                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="#20D5EC"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                         )}
-                      </div>
-                      <p className="text-white/50 text-[11px] font-medium truncate w-full text-center mt-0.5">{account.subtitle}</p>
+                    <div className="flex items-center justify-center w-full">
+                      <p className="text-white text-[13px] font-bold text-center truncate pr-[2px]">{account.name}</p>
+                      {account.verified && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="#20D5EC"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                      )}
+                    </div>
+                    <p className="text-white/50 text-[11px] font-medium truncate w-full text-center mt-0.5">{account.subtitle}</p>
                   </div>
-                  
-                  <button 
+
+                  <button
                     className="w-full py-[7px] mt-2 bg-[#FE2C55] text-white text-[13px] font-bold rounded-[4px] active:brightness-90 shadow-sm shrink-0"
                     onClick={() => handleSuggestedAccountClick(account)}
                   >
@@ -303,11 +311,11 @@ const ProfilePage = () => {
             ...(isOwnProfile ? [{ id: 'saves', icon: <BiBookmark size={20} /> }] : []),
             { id: 'likes', icon: <BiHeart size={20} /> }
           ].map(tab => (
-            <div 
+            <div
               key={tab.id}
               className={`flex-1 flex justify-center py-3 relative cursor-pointer ${
                 activeTab === tab.id ? 'text-white' : 'text-white/30'
-              }`} 
+              }`}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.icon}
@@ -321,7 +329,7 @@ const ProfilePage = () => {
         {/* Grid Content */}
         <div className="grid grid-cols-3 gap-[1px]">
           {activeTab === 'videos' && <VideoGrid videos={[...userVideos, ...userVideos]} />}
-          
+
           {activeTab === 'saves' && isOwnProfile && (
             savedVideos.length > 0 ? (
               <VideoGrid videos={savedVideos} />
@@ -344,7 +352,6 @@ const ProfilePage = () => {
             )
           )}
 
-          {/* Locked / Empty states */}
           {(activeTab === 'private' || (!isOwnProfile && (activeTab === 'likes' || activeTab === 'saves'))) && (
             <div className="col-span-3 flex flex-col items-center justify-center py-20 gap-2 text-white/30">
               <BiLockAlt size={40} opacity={0.5} />

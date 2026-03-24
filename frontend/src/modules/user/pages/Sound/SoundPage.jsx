@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { IoShareOutline, IoPlayOutline } from 'react-icons/io5';
 import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
+import { useTheme } from '../../../../context/ThemeContext';
 
 const allVideos = [...mockVideos, ...mockFollowingVideos];
 
 const SoundPage = () => {
   const { musicName } = useParams();
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const decodedMusic = decodeURIComponent(musicName || '');
 
   // Check if this sound is already in favorites
@@ -34,12 +36,12 @@ const SoundPage = () => {
   };
 
   return (
-    <div className="page-container bg-black flex flex-col overflow-hidden text-white">
+    <div className={`page-container flex flex-col overflow-hidden ${isDarkMode ? 'bg-black text-white' : 'bg-[#f8fafc] text-black'}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/10 shrink-0">
+      <div className={`flex items-center justify-between px-4 pt-4 pb-3 border-b shrink-0 ${isDarkMode ? 'border-white/10' : 'border-black/10'}`}>
         <button
           onClick={() => navigate('/')}
-          className="w-8 h-8 flex items-center justify-center text-white active:opacity-60"
+          className={`w-8 h-8 flex items-center justify-center active:opacity-60 ${isDarkMode ? 'text-white' : 'text-black'}`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6" />
@@ -54,7 +56,7 @@ const SoundPage = () => {
           Music Charts
         </div>
 
-        <button className="w-8 h-8 flex items-center justify-center text-white active:opacity-60">
+        <button className={`w-8 h-8 flex items-center justify-center active:opacity-60 ${isDarkMode ? 'text-white' : 'text-black'}`}>
           <IoShareOutline size={22} />
         </button>
       </div>
@@ -64,7 +66,7 @@ const SoundPage = () => {
         <div className="px-4 pt-5 pb-3">
           <div className="flex items-start gap-4">
             {/* Thumbnail */}
-            <div className="relative w-[100px] h-[100px] rounded-xl overflow-hidden bg-white/10 shrink-0 shadow-lg border border-white/5">
+            <div className={`relative w-[100px] h-[100px] rounded-xl overflow-hidden shrink-0 shadow-lg border ${isDarkMode ? 'bg-white/10 border-white/5' : 'bg-black/5 border-black/5'}`}>
               <img
                 src={`https://api.dicebear.com/7.x/identicon/svg?seed=${decodedMusic}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
                 alt="sound thumbnail"
@@ -80,10 +82,10 @@ const SoundPage = () => {
 
             {/* Info */}
             <div className="flex-1 pt-1">
-              <h2 className="text-[16px] font-bold text-white mb-0.5 leading-tight line-clamp-2 drop-shadow-sm">
+              <h2 className={`text-[16px] font-bold mb-0.5 leading-tight line-clamp-2 drop-shadow-sm ${isDarkMode ? 'text-white' : 'text-black'}`}>
                 {decodedMusic} -
               </h2>
-              <p className="text-[13px] text-white/50 mb-3 font-medium">
+              <p className={`text-[13px] mb-3 font-medium ${isDarkMode ? 'text-white/50' : 'text-black/50'}`}>
                 {displayVideos.length * 1000}+ posts
               </p>
 
@@ -92,8 +94,12 @@ const SoundPage = () => {
                 onClick={handleAddToFavorites}
                 className={`flex items-center gap-2 border rounded-md px-4 py-2 text-[13px] font-semibold transition-all active:scale-95 ${
                   isSoundSaved
-                    ? 'border-white/10 text-white/40 bg-white/5'
-                    : 'border-white/20 text-white bg-transparent hover:bg-white/5'
+                    ? isDarkMode
+                      ? 'border-white/10 text-white/40 bg-white/5'
+                      : 'border-black/10 text-black/45 bg-black/5'
+                    : isDarkMode
+                      ? 'border-white/20 text-white bg-transparent hover:bg-white/5'
+                      : 'border-black/15 text-black bg-transparent hover:bg-black/[0.03]'
                 }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
@@ -116,18 +122,18 @@ const SoundPage = () => {
           )}
 
           {/* Credit line */}
-          <p className="text-[11px] text-white/40 mt-4 leading-relaxed line-clamp-2">
+          <p className={`text-[11px] mt-4 leading-relaxed line-clamp-2 ${isDarkMode ? 'text-white/40' : 'text-black/45'}`}>
             Contains music from: Mi Gente - Hugel Remix - J Balvin &amp; Willy William &amp; HUGEL
           </p>
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-white/10 mx-0 mb-0.5 mt-1" />
+        <div className={`h-px mx-0 mb-0.5 mt-1 ${isDarkMode ? 'bg-white/10' : 'bg-black/10'}`} />
 
         {/* Video Grid */}
         <div className="grid grid-cols-3 gap-0.5">
           {[...displayVideos, ...displayVideos].slice(0, 9).map((video, idx) => (
-            <div key={idx} className="relative aspect-[3/5] bg-white/10 overflow-hidden group">
+            <div key={idx} className={`relative aspect-[3/5] overflow-hidden group ${isDarkMode ? 'bg-white/10' : 'bg-black/5'}`}>
               {idx === 0 && (
                 <div className="absolute top-1.5 left-1.5 z-10 bg-[#FE2C55] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-sm shadow-sm">
                   Original

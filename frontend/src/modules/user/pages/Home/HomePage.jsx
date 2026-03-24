@@ -158,7 +158,7 @@ const HomePage = () => {
 
       {/* Video Feed Wrapper */}
       <div
-        className="h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar touch-pan-y overscroll-none"
+        className="home-feed-scroll-lockable h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar touch-pan-y overscroll-none"
         ref={containerRef}
       >
         {displayedVideos.map((video, index) => (

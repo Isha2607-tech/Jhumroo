@@ -14,7 +14,7 @@ import logo from '../../../../assets/loginPage/Logo.png';
 /* ──────────────── Reusable UI Components ──────────────── */
 
 const BackgroundWrapper = ({ children, blur = false }) => (
-  <div className="relative h-full w-full overflow-hidden bg-black">
+  <div className="relative h-full min-h-0 w-full overflow-hidden bg-black">
     <div
       className={`absolute inset-0 bg-cover bg-center transition-all duration-700 ${blur ? 'blur-[8px] scale-110' : 'blur-0 scale-100'}`}
       style={{ backgroundImage: `url(${loginBg})` }}
@@ -27,15 +27,15 @@ const BackgroundWrapper = ({ children, blur = false }) => (
 );
 
 const AuthCard = ({ children, title, subtitle }) => (
-  <div className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-[32px] p-8 flex flex-col shadow-2xl animate-scale-in">
-    {title && <h2 className="text-2xl font-black text-white mb-1 tracking-tight">{title}</h2>}
-    {subtitle && <p className="text-sm text-gray-300 mb-8 leading-snug">{subtitle}</p>}
+  <div className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-[28px] p-5 sm:rounded-[32px] sm:p-8 flex flex-col shadow-2xl animate-scale-in">
+    {title && <h2 className="text-[1.65rem] sm:text-2xl font-black text-white mb-1 tracking-tight">{title}</h2>}
+    {subtitle && <p className="text-sm text-gray-300 mb-6 sm:mb-8 leading-snug">{subtitle}</p>}
     {children}
   </div>
 );
 
 const PrimaryButton = ({ onClick, children, variant = 'solid', disabled = false, className = "" }) => {
-  const baseStyles = "w-full py-4 rounded-full font-bold text-[16px] transition-all duration-200 active:scale-[0.96] flex items-center justify-center gap-3";
+  const baseStyles = "w-full min-h-[54px] rounded-full px-4 py-3.5 text-[15px] sm:py-4 sm:text-[16px] font-bold transition-all duration-200 active:scale-[0.96] flex items-center justify-center gap-3";
   const variants = {
     solid: "bg-[#fe2c55] text-white shadow-lg shadow-[#fe2c55]/30",
     outline: "bg-white/10 border border-white/30 text-white backdrop-blur-md",
@@ -179,15 +179,24 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   if (step === 1) {
     return (
       <BackgroundWrapper>
-        <div className="flex-1 flex flex-col items-start justify-between px-8 py-16">
+        <div
+          className="flex-1 min-h-0 flex flex-col items-start justify-between gap-8 overflow-y-auto px-5 sm:px-8"
+          style={{
+            paddingTop: 'max(1.5rem, calc(env(safe-area-inset-top) + 1rem))',
+            paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1.25rem))',
+          }}
+        >
           {/* Logo Section */}
-          <div className="flex flex-col items-start animate-fade-in mt-16">
-            <p className="text-gray-300 text-2xl font-semibold tracking-wide mb-2">Welcome to</p>
+          <div
+            className="flex max-w-[19rem] sm:max-w-[22rem] flex-col items-start animate-fade-in"
+            style={{ marginTop: 'clamp(0.5rem, 5vh, 4rem)' }}
+          >
+            <p className="text-gray-300 text-lg sm:text-2xl font-semibold tracking-wide mb-2">Welcome to</p>
             <h1
               className="text-white tracking-tight text-left"
               style={{
                 fontFamily: "'Playfair Display', serif",
-                fontSize: 'clamp(2.4rem, 10vw, 3.2rem)',
+                fontSize: 'clamp(2.15rem, 11vw, 3.2rem)',
                 fontWeight: 900,
                 lineHeight: 1.1,
               }}
@@ -197,14 +206,22 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="w-full max-w-[320px] flex flex-col gap-4 animate-slide-up">
-            <PrimaryButton onClick={() => navigate('/login')}>
+          <div className="w-full self-stretch max-w-none sm:max-w-[360px] flex flex-col gap-4 animate-slide-up">
+            <button
+              type="button"
+              onClick={() => navigate('/login')}
+              className="flex min-h-[56px] w-full items-center justify-center rounded-full border border-[#ff7ba5]/30 bg-[linear-gradient(180deg,#ff5d90_0%,#ff2e69_55%,#ff245f_100%)] px-4 text-[1.05rem] font-extrabold text-white shadow-[0_10px_30px_rgba(255,53,108,0.45)] transition-transform duration-200 active:scale-[0.97] sm:min-h-[60px] sm:text-[1.15rem]"
+            >
               Log in
-            </PrimaryButton>
-            <PrimaryButton variant="outline" onClick={() => navigate('/signup')}>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/signup')}
+              className="flex min-h-[56px] w-full items-center justify-center rounded-full border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.08)_100%)] px-4 text-[1rem] font-extrabold text-white shadow-[0_12px_28px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-md transition-transform duration-200 active:scale-[0.97] sm:min-h-[60px] sm:text-[1.1rem]"
+            >
               Sign Up
-            </PrimaryButton>
-            <p className="text-[12px] text-gray-400 text-center px-4 mt-4 leading-snug">
+            </button>
+            <p className="text-[11px] sm:text-[12px] text-gray-400 text-center px-2 sm:px-4 mt-2 sm:mt-4 leading-snug">
               By continuing you agree to our <span className="text-white font-semibold">Terms</span> and <span className="text-white font-semibold">Privacy</span>
             </p>
           </div>
@@ -255,7 +272,10 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
 
     return (
       <BackgroundWrapper blur>
-        <div className="flex-1 flex flex-col justify-end p-6">
+        <div
+          className="flex-1 min-h-0 flex flex-col justify-end overflow-y-auto px-4 pt-6 sm:p-6"
+          style={{ paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 1rem))' }}
+        >
           <AuthCard
             title={mode === 'signup' ? "Sign up" : "Log in"}
             subtitle="Choose a method to continue your journey"
@@ -265,7 +285,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
                 <button
                   key={i}
                   onClick={m.onClick}
-                  className={`w-full h-[54px] flex items-center border border-white/10 rounded-2xl active:scale-[0.98] transition-all bg-white/5 relative group ${m.className || ''}`}
+                  className={`w-full min-h-[54px] flex items-center border border-white/10 rounded-2xl active:scale-[0.98] transition-all bg-white/5 relative group ${m.className || ''}`}
                 >
                   <div className="absolute left-[16px] flex items-center justify-center">
                     {m.icon}
@@ -288,13 +308,13 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
             </div>
           </AuthCard>
 
-          <div className="h-8" /> {/* Spacer for bottom nav area if needed */}
+          <div style={{ height: 'max(0.5rem, env(safe-area-inset-bottom))' }} />
         </div>
 
         {showAccountNotFound && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-8">
-            <div className="w-full max-w-sm bg-[#1a1a1a] border border-white/10 rounded-[32px] overflow-hidden animate-scale-in">
-              <div className="p-8 text-center">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 sm:p-8">
+            <div className="w-full max-w-sm bg-[#1a1a1a] border border-white/10 rounded-[28px] sm:rounded-[32px] overflow-hidden animate-scale-in">
+              <div className="p-6 sm:p-8 text-center">
                 <div className="w-20 h-20 bg-[#fe2c55]/10 rounded-full flex items-center justify-center mx-auto mb-6">
                   <BiUser size={40} className="text-[#fe2c55]" />
                 </div>
@@ -303,7 +323,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
                   Please create an account first to join the community.
                 </p>
               </div>
-              <div className="p-6 bg-white/5 flex flex-col gap-3">
+              <div className="p-4 sm:p-6 bg-white/5 flex flex-col gap-3">
                 <PrimaryButton onClick={() => { setShowAccountNotFound(false); navigate('/signup'); }}>
                   Create Account
                 </PrimaryButton>
@@ -322,16 +342,19 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   if (step === 3) {
     return (
       <BackgroundWrapper blur>
-        <div className="flex flex-col h-full">
-          <div className="h-14 flex items-center px-4 shrink-0">
+        <div className="flex flex-col h-full min-h-0">
+          <div
+            className="min-h-[56px] flex items-center px-4 shrink-0"
+            style={{ paddingTop: 'max(0px, env(safe-area-inset-top))' }}
+          >
             <button onClick={() => setStep(2)} className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full text-white">
               <BiChevronLeft size={28} />
             </button>
           </div>
 
-          <div className="flex-1 flex flex-col justify-end p-6">
+          <div className="flex-1 min-h-0 flex flex-col justify-end overflow-y-auto px-4 pb-4 sm:p-6">
             <AuthCard title="When's your birthday?" subtitle="Your birthday won't be shown publicly.">
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                 <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl py-4 px-6">
                   <p className={`text-[17px] font-bold ${birthdaySelected ? 'text-white' : 'text-gray-500'}`}>
                     {birthdaySelected ? selectedDate : 'Birthday'}
@@ -346,8 +369,11 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
             </AuthCard>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-2xl px-4 pt-4 pb-8 rounded-t-[40px]">
-            <div className="flex h-[180px]">
+          <div
+            className="bg-white/10 backdrop-blur-2xl px-4 pt-4 rounded-t-[32px] sm:rounded-t-[40px] shrink-0"
+            style={{ paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem))' }}
+          >
+            <div className="flex" style={{ height: 'clamp(150px, 28vh, 180px)' }}>
               <PickerColumn items={MONTHS} selectedIndex={monthIdx} onChange={(i) => { setMonthIdx(i); setBirthdaySelected(true); }} />
               <PickerColumn items={DAYS} selectedIndex={dayIdx} onChange={(i) => { setDayIdx(i); setBirthdaySelected(true); }} />
               <PickerColumn items={YEARS} selectedIndex={yearIdx} onChange={(i) => { setYearIdx(i); setBirthdaySelected(true); }} />
@@ -356,9 +382,12 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
         </div>
 
         {showBirthdayPrompt && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-end justify-center pb-12 px-6">
-            <div className="w-full max-w-sm bg-[#1a1a1a] border border-white/10 rounded-[32px] overflow-hidden animate-slide-up shadow-2xl">
-              <div className="p-8 text-center text-white">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-end justify-center px-4 sm:px-6"
+            style={{ paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem))' }}
+          >
+            <div className="w-full max-w-sm bg-[#1a1a1a] border border-white/10 rounded-[28px] sm:rounded-[32px] overflow-hidden animate-slide-up shadow-2xl">
+              <div className="p-6 sm:p-8 text-center text-white">
                 <h3 className="text-xl font-bold mb-3">Add birthday to enjoy</h3>
                 <p className="text-sm text-gray-400 leading-relaxed font-medium">
                   This is required to give you the best experience on The Jhumroo App.
@@ -384,15 +413,21 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   if (step === 4 || step === 5) {
     return (
       <BackgroundWrapper blur>
-        <div className="flex-1 flex flex-col">
-          <div className="h-14 flex items-center px-4 shrink-0">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div
+            className="min-h-[56px] flex items-center px-4 shrink-0"
+            style={{ paddingTop: 'max(0px, env(safe-area-inset-top))' }}
+          >
             <button onClick={() => setStep(step === 4 ? (mode === 'signup' ? 3 : 2) : 4)} className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full text-white">
               <BiChevronLeft size={28} />
             </button>
           </div>
 
-          <div className="flex-1 flex flex-col justify-between">
-            <div className="p-6">
+          <div className="flex-1 min-h-0 flex flex-col justify-between">
+            <div
+              className="flex-1 min-h-0 overflow-y-auto px-4 pb-6 sm:p-6"
+              style={{ paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 1rem))' }}
+            >
               {step === 4 ? (
                 <PhoneInput
                   mode={mode}

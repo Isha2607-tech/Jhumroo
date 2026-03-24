@@ -132,7 +132,7 @@ const ChatPage = () => {
               )}
 
               <div
-                className={`max-w-[78%] rounded-[20px] px-4 py-3 text-[13px] leading-relaxed shadow-sm ${
+                className={`theme-on-media max-w-[78%] rounded-[20px] px-4 py-3 text-[13px] leading-relaxed shadow-sm ${
                   message.sender === 'me'
                     ? 'bg-[#5A5FD6] text-white rounded-br-[6px]'
                     : 'bg-[#303550] text-white/90 rounded-bl-[6px]'

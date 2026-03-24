@@ -12,6 +12,7 @@ const VideoCard = ({ videoData, isActive }) => {
   const [likesCount, setLikesCount] = useState(videoData.likes || 0);
   const videoRef = useRef(null);
   const lastTapRef = useRef(0);
+  const savedToastTimeoutRef = useRef(null);
   const [showHeart, setShowHeart] = useState(false);
 
   // --- Favorites State ---
@@ -108,11 +109,24 @@ const VideoCard = ({ videoData, isActive }) => {
     }
     setIsSaved(true);
     setShowSavedToast(true);
-    setTimeout(() => setShowSavedToast(false), 2500);
+    clearTimeout(savedToastTimeoutRef.current);
+    savedToastTimeoutRef.current = setTimeout(() => setShowSavedToast(false), 2500);
+  };
+
+  const removeFromFavorites = () => {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const nextFavorites = favorites.filter(id => id !== videoData.id);
+    localStorage.setItem('favorites', JSON.stringify(nextFavorites));
+    setIsSaved(false);
+    setShowSavedToast(false);
+    clearTimeout(savedToastTimeoutRef.current);
   };
 
   const handleSaveClick = () => {
-    if (isSaved) return;
+    if (isSaved) {
+      removeFromFavorites();
+      return;
+    }
     const hasSeen = localStorage.getItem('hasSeenFavoritesPopup');
     if (!hasSeen) {
       setShowFavoritesModal(true);
@@ -120,6 +134,10 @@ const VideoCard = ({ videoData, isActive }) => {
       addToFavorites();
     }
   };
+
+  useEffect(() => {
+    return () => clearTimeout(savedToastTimeoutRef.current);
+  }, []);
 
   return (
     <div className="h-full w-full relative snap-start bg-black flex justify-center items-center">

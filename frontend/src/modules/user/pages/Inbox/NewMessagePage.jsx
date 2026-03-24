@@ -88,7 +88,7 @@ const NewMessagePage = () => {
       <div className="scrollable flex-1 pb-[max(1rem,var(--safe-area-bottom))]">
         <div className="px-4 pt-5">
           <p className="text-[12px] font-semibold tracking-[0.24em] uppercase text-white/35 mb-3">Quick Chat</p>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-3">
+          <div className="flex gap-3 overflow-x-auto overflow-y-visible no-scrollbar pt-2 pb-3">
             {highlightedUsers.map((user) => (
               (() => {
                 const thread = threadMap.get(user.username);

@@ -7,14 +7,14 @@ const SettingsSubPageLayout = ({ title, children }) => {
 
   return (
     <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen">
-      <div className="flex items-center justify-between px-4 pt-6 pb-6 shrink-0 relative border-b border-white/5">
+      <div className="theme-page-header flex items-center justify-between px-4 pt-6 pb-6 shrink-0 relative">
         <div
-          className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center cursor-pointer active:scale-95 transition-transform z-10"
+          className="theme-icon-button w-10 h-10 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition-transform z-10"
           onClick={() => navigate(-1)}
         >
-          <BiChevronLeft size={24} className="text-white" />
+          <BiChevronLeft size={24} className="theme-text-primary" />
         </div>
-        <h2 className="text-[17px] font-bold text-white absolute left-0 right-0 text-center tracking-wide">
+        <h2 className="theme-text-primary text-[17px] font-bold absolute left-0 right-0 text-center tracking-wide">
           {title}
         </h2>
         <div className="w-10" />

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavig
 import BottomNavBar from './modules/user/components/navigation/BottomNavBar';
 import HomePage from './modules/user/pages/Home/HomePage';
 import SearchPage from './modules/user/pages/Search/SearchPage';
+import SearchHashtagPage from './modules/user/pages/Search/SearchHashtagPage';
 import CreatePage from './modules/user/pages/Create/CreatePage';
 import InboxPage from './modules/user/pages/Inbox/InboxPage';
 import ProfilePage from './modules/user/pages/Profile/ProfilePage';
@@ -41,7 +42,7 @@ import ChatPage from './modules/user/pages/Inbox/ChatPage';
 import ChatMediaPage from './modules/user/pages/Inbox/ChatMediaPage';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 
-const MainLayout = () => {
+const MainLayout = ({ onLogout }) => {
   const location = useLocation();
   const [showNav, setShowNav] = useState(true);
 
@@ -59,12 +60,15 @@ const MainLayout = () => {
     const isSettingsPage =
       location.pathname === '/settings' ||
       location.pathname.startsWith('/settings/');
+    const isSearchDetailPage = location.pathname.startsWith('/search/hashtag/');
 
     // Hide bottom nav on sub-pages (Sound, User Profile sub-pages, Inbox sub-pages)
     const isSubPage = 
       location.pathname.includes('/sound/') || 
+      location.pathname === '/create' ||
       isUserSubPage || 
       isSettingsPage ||
+      isSearchDetailPage ||
       isChatSubPage ||
       location.pathname === '/inbox/new-followers' || 
       location.pathname === '/inbox/activity';
@@ -77,6 +81,7 @@ const MainLayout = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/search/hashtag/:tagSlug" element={<SearchHashtagPage />} />
         <Route path="/create" element={<CreatePage />} />
         <Route path="/inbox" element={<InboxPage />} />
         <Route path="/inbox/new-followers" element={<NewFollowersPage />} />
@@ -86,7 +91,7 @@ const MainLayout = () => {
         <Route path="/inbox/chat/:username/gallery" element={<ChatMediaPage mode="gallery" />} />
         <Route path="/inbox/chat/:username/camera" element={<ChatMediaPage mode="camera" />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<SettingsPage onLogout={onLogout} />} />
         <Route path="/settings/edit-profile" element={<EditProfilePage />} />
         <Route path="/settings/privacy" element={<PrivacyPage />} />
         <Route path="/settings/privacy/comments" element={<PrivacyCommentsPage />} />
@@ -147,8 +152,13 @@ const AppContent = () => {
         navigate('/', { replace: true });
     };
 
+    const handleLogout = () => {
+        setAppState('auth');
+        navigate('/welcome', { replace: true });
+    };
+
     return (
-        <div className={`theme-app-shell relative w-full max-w-[450px] h-screen h-dvh mx-auto flex flex-col overflow-hidden shadow-2xl ${theme === 'light' ? 'theme-is-light' : 'theme-is-dark'}`}>
+        <div className={`theme-app-shell relative w-full max-w-full h-full min-h-full mx-auto flex flex-col overflow-hidden shadow-2xl ${theme === 'light' ? 'theme-is-light' : 'theme-is-dark'}`}>
             {appState === 'launch' && <Splash />}
             {appState !== 'launch' && (
                 <Routes>
@@ -162,7 +172,7 @@ const AppContent = () => {
                     ) : appState === 'onboarding' ? (
                         <Route path="/*" element={<OnboardingPage onComplete={handleOnboardingComplete} />} />
                     ) : (
-                        <Route path="/*" element={<MainLayout />} />
+                        <Route path="/*" element={<MainLayout onLogout={handleLogout} />} />
                     )}
                 </Routes>
             )}

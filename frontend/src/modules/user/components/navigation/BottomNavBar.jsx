@@ -15,13 +15,13 @@ const NavItem = ({ item, isActive, isDarkMode }) => {
   if (item.type === 'create') {
     return (
       <NavLink to={item.path} className="flex-1 flex flex-col items-center justify-center pt-1 transition-transform active:scale-95 duration-200 will-change-transform">
-         <div className="relative w-[45px] h-[28px] flex items-center justify-center">
-            <div className="absolute left-0 w-[38px] h-full bg-tiktok-cyan rounded-[8px] z-[1]" />
-            <div className="absolute right-0 w-[38px] h-full bg-tiktok-red rounded-[8px] z-[1]" />
-            <div className="absolute w-[38px] h-full bg-white rounded-[8px] z-[2] flex items-center justify-center shadow-sm">
-                <span className="text-black text-[22px] font-bold leading-none">+</span>
-            </div>
-         </div>
+        <div className="relative w-[45px] h-[28px] flex items-center justify-center">
+          <div className="absolute left-0 w-[38px] h-full bg-tiktok-cyan rounded-[8px] z-[1]" />
+          <div className="absolute right-0 w-[38px] h-full bg-tiktok-red rounded-[8px] z-[1]" />
+          <div className="absolute w-[38px] h-full bg-white rounded-[8px] z-[2] flex items-center justify-center shadow-sm">
+            <span className="text-black text-[22px] font-bold leading-none">+</span>
+          </div>
+        </div>
       </NavLink>
     );
   }
@@ -29,24 +29,22 @@ const NavItem = ({ item, isActive, isDarkMode }) => {
   const Icon = item.icon;
 
   return (
-    <NavLink 
+    <NavLink
       to={item.path}
       className={`flex-1 flex flex-col items-center justify-center py-2 transition-opacity group ${!isActive ? 'active:opacity-70' : ''}`}
     >
-      <div 
-        className={`relative w-9 h-9 flex items-center justify-center rounded-full transition-transform duration-300 ease-in-out will-change-transform ${
-          isActive ? 'scale-[1.2]' : 'group-active:scale-95'
-        }`}
+      <div
+        className={`relative w-9 h-9 flex items-center justify-center rounded-full transition-transform duration-300 ease-in-out will-change-transform ${isActive ? 'scale-[1.2]' : 'group-active:scale-95'
+          }`}
       >
-        <Icon 
-          size={22} 
-          className={`transition-colors duration-300 ease-in-out ${
-            isActive
+        <Icon
+          size={22}
+          className={`transition-colors duration-300 ease-in-out ${isActive
               ? 'text-[#FE2C55] drop-shadow-[0_0_8px_rgba(254,44,85,0.4)]'
               : isDarkMode
                 ? 'text-white/70'
                 : 'text-black/55'
-          }`} 
+            }`}
         />
         {item.badge && (
           <span className={`absolute top-0 -right-1 bg-tiktok-red text-white text-[10px] font-bold px-1.5 h-3.5 min-w-[14px] rounded-full flex items-center justify-center border border-black z-10 transition-transform duration-300 ${isActive ? 'scale-[0.83]' : 'scale-100'}`}>
@@ -54,15 +52,14 @@ const NavItem = ({ item, isActive, isDarkMode }) => {
           </span>
         )}
       </div>
-      <span className={`text-[10px] mt-0.5 transition-all duration-300 ease-in-out ${
-        isActive
+      <span className={`text-[10px] mt-0.5 transition-all duration-300 ease-in-out ${isActive
           ? isDarkMode
             ? 'text-white font-bold opacity-100 drop-shadow-md'
             : 'text-black font-bold opacity-100'
           : isDarkMode
             ? 'text-white/70 opacity-80'
             : 'text-black/55 opacity-90'
-      }`}>
+        }`}>
         {item.label}
       </span>
     </NavLink>
@@ -73,6 +70,8 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
   const { isDarkMode } = useTheme();
   const location = useLocation();
   const [activeIndex, setActiveIndex] = useState(0);
+  const isHomePage = location.pathname === '/';
+  const usesDarkNavAppearance = isDarkMode || isHomePage;
 
   useEffect(() => {
     const index = NAV_ITEMS.findIndex(item => {
@@ -82,42 +81,49 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
       if (item.path === '/') return location.pathname === '/';
       return location.pathname.startsWith(item.path);
     });
-    
+
     // We update active index even if on a sub-route to keep the indicator there
     if (index !== -1) {
       setActiveIndex(index);
     }
   }, [location.pathname]);
 
-  const containerClasses = `absolute bottom-0 left-0 w-full h-[var(--bottom-nav-height)] z-[1000] flex justify-around items-center transition-all duration-300 pb-[var(--safe-area-bottom)] ${
-    isDarkTheme && isDarkMode
-      ? 'bg-black/85 backdrop-blur-md border-t border-white/10 text-white/70 shadow-[0_-5px_15px_rgba(0,0,0,0.5)]' 
-      : isDarkMode
-        ? 'bg-black text-white/90'
-        : 'theme-bottom-nav bg-white/92 text-black/80 border-t border-black/10 backdrop-blur-md shadow-[0_-5px_18px_rgba(15,23,42,0.08)]'
-  }`;
+  const containerClasses = `absolute left-0 w-full z-[1000] flex justify-around items-center transition-all duration-300 ${isHomePage
+      ? 'bg-black text-white/90 border-t border-white/10 shadow-[0_-5px_15px_rgba(0,0,0,0.45)]'
+      : isDarkTheme && isDarkMode
+        ? 'bg-black/85 backdrop-blur-md border-t border-white/10 text-white/70 shadow-[0_-5px_15px_rgba(0,0,0,0.5)]'
+        : isDarkMode
+          ? 'bg-black text-white/90'
+          : 'theme-bottom-nav bg-white text-black/80 border-t border-black/10 shadow-[0_-5px_18px_rgba(15,23,42,0.08)]'
+    }`;
 
   return (
-    <nav className={containerClasses}>
+    <nav
+      className={containerClasses}
+      style={{
+        bottom: '-1px',
+        minHeight: 'calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
+    >
       {/* Sliding Tab Indicator */}
-      <div 
+      <div
         className="absolute top-0 left-0 w-1/5 h-[3px] flex justify-center transition-transform duration-300 ease-in-out will-change-transform z-10"
         style={{ transform: `translateX(${activeIndex * 100}%)` }}
       >
-        <div className={`w-[20px] h-full rounded-b-full transition-all duration-300 ease-in-out ${
-          activeIndex === 2 
-            ? 'opacity-0 scale-0' 
+        <div className={`w-[20px] h-full rounded-b-full transition-all duration-300 ease-in-out ${activeIndex === 2
+            ? 'opacity-0 scale-0'
             : 'opacity-100 scale-100 bg-[#FE2C55] shadow-[0_2px_8px_rgba(254,44,85,0.8)]'
-        }`} />
+          }`} />
       </div>
 
       {/* Nav Items */}
       {NAV_ITEMS.map((item, index) => (
-        <NavItem 
+        <NavItem
           key={item.path}
           item={item}
           isActive={activeIndex === index}
-          isDarkMode={isDarkMode}
+          isDarkMode={usesDarkNavAppearance}
         />
       ))}
     </nav>
