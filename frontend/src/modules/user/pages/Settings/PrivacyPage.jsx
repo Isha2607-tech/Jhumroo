@@ -3,32 +3,34 @@ import { useNavigate } from 'react-router-dom';
 import { BiChevronLeft, BiChevronRight, BiLock, BiAt, BiCommentDetail, BiArrowFromBottom, BiEnvelope, BiDownload, BiListUl } from 'react-icons/bi';
 import { getPrivacySettings, togglePrivateAccount } from '../../../../utils/privacySettings';
 import { useTheme } from '../../../../context/ThemeContext';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const PrivacyPage = () => {
     const navigate = useNavigate();
     const { isDarkMode } = useTheme();
+    const { config } = useAppContent();
     const [privacySettings, setPrivacySettings] = useState(() => getPrivacySettings());
-
-    const privacySections = [
-        {
-            title: "Interactions",
-            items: [
-                { icon: <BiCommentDetail size={20}/>, label: "Comments", value: privacySettings.comments, route: "/settings/privacy/comments" },
-                { icon: <BiAt size={20}/>, label: "Mentions and tags", value: privacySettings.mentionsTags, route: "/settings/privacy/mentions-tags" },
-                { icon: <BiEnvelope size={20}/>, label: "Direct messages", value: privacySettings.directMessages, route: "/settings/privacy/direct-messages" },
-                { icon: <BiArrowFromBottom size={20}/>, label: "Duet", value: privacySettings.duet, route: "/settings/privacy/duet" },
-                { icon: <BiArrowFromBottom size={20} className="rotate-90"/>, label: "Stitch", value: privacySettings.stitch, route: "/settings/privacy/stitch" },
-                { icon: <BiDownload size={20}/>, label: "Downloads", value: privacySettings.downloads, route: "/settings/privacy/downloads" }
-            ]
-        },
-        {
-            title: "Safety",
-            items: [
-                { icon: <BiListUl size={20}/>, label: "Blocked accounts", route: "/settings/privacy/blocked-accounts" },
-                { icon: <BiLock size={20}/>, label: "Private account", isToggle: true }
-            ]
-        }
-    ];
+    const iconMap = {
+      comments: BiCommentDetail,
+      mentions: BiAt,
+      messages: BiEnvelope,
+      duet: BiArrowFromBottom,
+      stitch: BiArrowFromBottom,
+      downloads: BiDownload,
+      blocked: BiListUl,
+      lock: BiLock,
+    };
+    const privacySections = (config?.settings?.privacySections || []).map((section) => ({
+      ...section,
+      items: (section.items || []).map((item) => {
+        const Icon = item.icon ? iconMap[item.icon] : null;
+        return {
+          ...item,
+          icon: Icon ? <Icon size={20} className={item.icon === 'stitch' ? 'rotate-90' : ''} /> : null,
+          value: item.value ? privacySettings[item.value] : item.value,
+        };
+      }),
+    }));
 
     const handleItemClick = (item) => {
         if (item.isToggle) {

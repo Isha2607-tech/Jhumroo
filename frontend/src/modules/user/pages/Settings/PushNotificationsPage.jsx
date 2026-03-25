@@ -1,34 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BiChevronLeft } from 'react-icons/bi';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const PushNotificationsPage = () => {
     const navigate = useNavigate();
-
-    const sections = [
-        {
-            title: "Content",
-            items: [
-                { label: "New followers", default: true },
-                { label: "Mentions", default: true },
-                { label: "Comments", default: true },
-                { label: "Likes", default: true }
-            ]
-        },
-        {
-            title: "Direct Messages",
-            items: [
-                { label: "Direct messages", default: true }
-            ]
-        },
-        {
-            title: "Video Updates",
-            items: [
-                { label: "Videos from accounts you follow", default: false },
-                { label: "Videos you might like", default: true }
-            ]
-        }
-    ];
+    const { config } = useAppContent();
+    const sections = config?.settings?.pushNotifications || [];
 
     return (
         <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen">

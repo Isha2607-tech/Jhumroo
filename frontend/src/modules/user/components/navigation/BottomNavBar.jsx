@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { BiHomeAlt, BiSearch, BiMessageSquareDetail, BiUser } from 'react-icons/bi';
 import { useTheme } from '../../../../context/ThemeContext';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
-const NAV_ITEMS = [
-  { path: '/', label: 'Home', icon: BiHomeAlt, type: 'link' },
-  { path: '/search', label: 'Discover', icon: BiSearch, type: 'link' },
-  { path: '/create', label: 'Create', type: 'create' },
-  { path: '/inbox', label: 'Inbox', icon: BiMessageSquareDetail, type: 'link', badge: 12 },
-  { path: '/profile', label: 'Profile', icon: BiUser, type: 'link' },
-];
+const iconMap = {
+  home: BiHomeAlt,
+  search: BiSearch,
+  inbox: BiMessageSquareDetail,
+  user: BiUser,
+};
 
 const NavItem = ({ item, isActive, isDarkMode }) => {
   if (item.type === 'create') {
@@ -27,6 +27,7 @@ const NavItem = ({ item, isActive, isDarkMode }) => {
   }
 
   const Icon = item.icon;
+  const SafeIcon = Icon || BiHomeAlt;
 
   return (
     <NavLink
@@ -37,7 +38,7 @@ const NavItem = ({ item, isActive, isDarkMode }) => {
         className={`relative w-9 h-9 flex items-center justify-center rounded-full transition-transform duration-300 ease-in-out will-change-transform ${isActive ? 'scale-[1.2]' : 'group-active:scale-95'
           }`}
       >
-        <Icon
+        <SafeIcon
           size={22}
           className={`transition-colors duration-300 ease-in-out ${isActive
               ? 'text-[#FE2C55] drop-shadow-[0_0_8px_rgba(254,44,85,0.4)]'
@@ -68,13 +69,24 @@ const NavItem = ({ item, isActive, isDarkMode }) => {
 
 const BottomNavBar = ({ isDarkTheme = true }) => {
   const { isDarkMode } = useTheme();
+  const { config } = useAppContent();
   const location = useLocation();
   const [activeIndex, setActiveIndex] = useState(0);
   const isHomePage = location.pathname === '/';
   const usesDarkNavAppearance = isDarkMode || isHomePage;
+  const navItems = useMemo(() => {
+    const items = config?.navigation?.bottomNav || [];
+    return items.map((item) => ({
+      ...item,
+      icon:
+        typeof item.icon === 'string'
+          ? iconMap[item.icon] || BiHomeAlt
+          : item.icon || BiHomeAlt,
+    }));
+  }, [config]);
 
   useEffect(() => {
-    const index = NAV_ITEMS.findIndex(item => {
+    const index = navItems.findIndex(item => {
       if (item.path === '/profile') {
         return location.pathname === '/profile' || /^\/user\/[^/]+$/.test(location.pathname);
       }
@@ -86,7 +98,7 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
     if (index !== -1) {
       setActiveIndex(index);
     }
-  }, [location.pathname]);
+  }, [location.pathname, navItems]);
 
   const containerClasses = `absolute left-0 w-full z-[1000] flex justify-around items-center transition-all duration-300 ${isHomePage
       ? 'bg-black text-white/90 border-t border-white/10 shadow-[0_-5px_15px_rgba(0,0,0,0.45)]'
@@ -96,6 +108,7 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
           ? 'bg-black text-white/90'
           : 'theme-bottom-nav bg-white text-black/80 border-t border-black/10 shadow-[0_-5px_18px_rgba(15,23,42,0.08)]'
     }`;
+  const navCount = navItems.length || 5;
 
   return (
     <nav
@@ -108,8 +121,8 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
     >
       {/* Sliding Tab Indicator */}
       <div
-        className="absolute top-0 left-0 w-1/5 h-[3px] flex justify-center transition-transform duration-300 ease-in-out will-change-transform z-10"
-        style={{ transform: `translateX(${activeIndex * 100}%)` }}
+        className="absolute top-0 left-0 h-[3px] flex justify-center transition-transform duration-300 ease-in-out will-change-transform z-10"
+        style={{ transform: `translateX(${activeIndex * 100}%)`, width: `${100 / navCount}%` }}
       >
         <div className={`w-[20px] h-full rounded-b-full transition-all duration-300 ease-in-out ${activeIndex === 2
             ? 'opacity-0 scale-0'
@@ -118,7 +131,7 @@ const BottomNavBar = ({ isDarkTheme = true }) => {
       </div>
 
       {/* Nav Items */}
-      {NAV_ITEMS.map((item, index) => (
+      {navItems.map((item, index) => (
         <NavItem
           key={item.path}
           item={item}

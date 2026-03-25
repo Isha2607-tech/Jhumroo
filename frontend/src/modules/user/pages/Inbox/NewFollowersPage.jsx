@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const mockContacts = [
-  { id: 1, username: 'user884998785164', sub: 'From your contacts' },
-  { id: 2, username: 'Chloe_joy', sub: 'People you may know' },
-  { id: 3, username: 'mike.tiktok99', sub: 'From your contacts' },
-];
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const FindFriends = ({ contacts, onDismiss }) => (
   <div className="px-4 pb-4">
@@ -39,7 +34,8 @@ const FindFriends = ({ contacts, onDismiss }) => (
 
 const NewFollowersPage = () => {
   const navigate = useNavigate();
-  const [contacts, setContacts] = useState(mockContacts);
+  const { config } = useAppContent();
+  const [contacts, setContacts] = useState(config?.inbox?.newFollowersContacts || []);
 
   return (
     <div className="page-container theme-surface-page flex flex-col">

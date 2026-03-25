@@ -1,44 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { BiMenu, BiUserPlus, BiBookmark, BiLockAlt, BiHeart, BiArrowBack, BiBell } from 'react-icons/bi';
+import { BiMenu, BiUserPlus, BiBookmark, BiHeart, BiArrowBack, BiBell } from 'react-icons/bi';
 import { BsGrid3X3 } from 'react-icons/bs';
-import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
-import { getLikedVideoIds } from '../../../../utils/likedVideos';
 import { useTheme } from '../../../../context/ThemeContext';
-
-const allVideos = [...mockVideos, ...mockFollowingVideos];
-
-const mockProfileData = {
-  johnny_dance: {
-    fullName: 'Johnny Dance',
-    followers: '1.5M',
-    following: '124',
-    likes: '12.8M',
-    bio: 'Dancing through life! 🕺✨\nFor business inquiries: DM',
-    playlists: ['Dance Moves', 'Vlogs', 'Tutorials'],
-  },
-  default: {
-    fullName: 'Jhumroo User',
-    followers: '673.6K',
-    following: '457',
-    likes: '17.5M',
-    bio: 'welcome!\n22\ncollab: isyottlanxse@gmail.com\n🔗 hoo.be/isabellaluaren\n🤍 Supporting: Be The Match  🍵 Tips',
-    playlists: ['fall outfits', 'PODCAST', 'amazon storefro'],
-  },
-};
-
-const generateRandomSuggestions = () => {
-  const suggestions = [
-    { id: 1, type: 'user', username: 'layton_wi', name: 'Layton Williams', verified: true, subtitle: '264.9K followers' },
-    { id: 2, type: 'platform', platform: 'Facebook', name: 'Facebook friends', subtitle: 'Find friends', actionText: 'Find', color: 'bg-[#1877F2]' },
-    { id: 3, type: 'user', username: 'charlidame', name: "charli d'amelio", verified: true, subtitle: '150.2M followers' },
-    { id: 4, type: 'platform', platform: 'Contacts', name: 'Contacts', subtitle: 'Find friends', actionText: 'Find', color: 'bg-[#FE2C55]' },
-    { id: 5, type: 'user', username: 'khaby.lem', name: 'Khabane lame', verified: true, subtitle: '161.4M followers' },
-    { id: 6, type: 'user', username: 'bellapoar', name: 'Bella Poarch', verified: true, subtitle: '93M followers' },
-    { id: 7, type: 'user', username: 'willsmith', name: 'Will Smith', verified: true, subtitle: '74.2M followers' },
-  ];
-  return suggestions.sort(() => Math.random() - 0.5).slice(0, 6);
-};
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const VideoGrid = ({ videos }) => {
   if (!videos.length) {
@@ -70,6 +35,7 @@ const ProfilePage = () => {
   const { isDarkMode } = useTheme();
   const { username } = useParams();
   const navigate = useNavigate();
+  const { config, reelLibrary, getProfile } = useAppContent();
 
   const isOwnProfile = !username || username === 'johnny_dance';
   const displayUsername = isOwnProfile ? 'johnny_dance' : username;
@@ -82,7 +48,8 @@ const ProfilePage = () => {
 
   const handleToggleSuggested = () => {
     if (!showSuggested && randomSuggestions.length === 0) {
-      setRandomSuggestions(generateRandomSuggestions());
+      const suggestions = [...(config?.users?.suggestions || [])];
+      setRandomSuggestions(suggestions.sort(() => Math.random() - 0.5).slice(0, 6));
     }
     setShowSuggested(!showSuggested);
   };
@@ -93,16 +60,14 @@ const ProfilePage = () => {
     }
   };
 
-  const profile = mockProfileData[displayUsername] || mockProfileData.default;
-  const userVideos = allVideos.filter(v => v.username === displayUsername);
+  const profile = getProfile(displayUsername) || {};
+  const userVideos = reelLibrary.filter((video) => video.username === displayUsername);
   const visibleSuggestions = randomSuggestions.filter(
     (account) => account.type !== 'user' || account.username !== displayUsername
   );
 
-  const savedIds = JSON.parse(localStorage.getItem('favorites') || '[]');
-  const savedVideos = mockVideos.filter(v => savedIds.includes(v.id));
-  const likedIds = getLikedVideoIds(allVideos);
-  const likedVideos = allVideos.filter(v => likedIds.includes(v.id));
+  const savedVideos = reelLibrary.filter((video) => (profile.savedReelIds || []).includes(video.id));
+  const likedVideos = reelLibrary.filter((video) => (profile.likedReelIds || []).includes(video.id));
   const handleOpenChat = () => navigate(`/inbox/chat/${displayUsername}`);
 
   return (
@@ -307,7 +272,7 @@ const ProfilePage = () => {
         <div className="flex border-t border-white/5 pt-1">
           {[
             { id: 'videos', icon: <BsGrid3X3 size={20} /> },
-            { id: 'private', icon: <BiLockAlt size={20} /> },
+            { id: 'private', icon: <BiBookmark size={20} /> },
             ...(isOwnProfile ? [{ id: 'saves', icon: <BiBookmark size={20} /> }] : []),
             { id: 'likes', icon: <BiHeart size={20} /> }
           ].map(tab => (
@@ -354,7 +319,7 @@ const ProfilePage = () => {
 
           {(activeTab === 'private' || (!isOwnProfile && (activeTab === 'likes' || activeTab === 'saves'))) && (
             <div className="col-span-3 flex flex-col items-center justify-center py-20 gap-2 text-white/30">
-              <BiLockAlt size={40} opacity={0.5} />
+              <BiBookmark size={40} opacity={0.5} />
               <p className="text-sm">{isOwnProfile ? 'This section is empty' : `This user's content is private`}</p>
             </div>
           )}

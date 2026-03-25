@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BiMessageSquareDetail } from 'react-icons/bi';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const InboxPage = () => {
   const navigate = useNavigate();
-  const [suggestedFriends, setSuggestedFriends] = useState([
-    { id: 1, username: 'Chloe', sub: 'People you may know' },
-    { id: 2, username: 'user884998785164', sub: 'From your contacts' },
-    { id: 3, username: 'Jenna_85', sub: 'People you may know' },
-  ]);
+  const { config } = useAppContent();
+  const [suggestedFriends, setSuggestedFriends] = useState(config?.inbox?.suggestedFriends || []);
+  const activityGroups = config?.inbox?.activityGroups || [];
 
   const dismissFriend = (id) => {
     setSuggestedFriends(prev => prev.filter(f => f.id !== id));
@@ -55,31 +54,25 @@ const InboxPage = () => {
            </div>
            
            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-white/10 overflow-hidden ring-1 ring-white/10">
-                   <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user1" alt="" className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[13px] text-white">
-                    <span className="font-bold">OurBootprints</span> from your contacts is on Jhumroo as... <span className="text-white/40">1d</span>
-                  </p>
-                </div>
-                <button className="px-4 py-1.5 bg-[#FE2C55] text-white text-[12px] font-bold rounded-sm active:brightness-90">Follow</button>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 rounded-full bg-white/20" />
-                <div className="flex-1">
-                  <p className="text-[13px] text-white">
-                    <span className="font-bold">Jenzp85</span> just viewed the video you shared. <span className="text-white/40">3d</span>
-                  </p>
-                  <div className="flex gap-2 mt-2">
-                    <button className="px-4 py-1.5 border border-white/35 text-white text-[12px] font-bold rounded-sm bg-transparent">Ignore</button>
-                    <button className="px-4 py-1.5 bg-[#FE2C55] text-white text-[12px] font-bold rounded-sm">Follow back</button>
+              {activityGroups.slice(0, 1).flatMap((group) => group.items.slice(0, 2)).map((item) => (
+                <div key={item.id} className="flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-full bg-white/10 overflow-hidden ring-1 ring-white/10">
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.user}`} alt="" className="w-full h-full object-cover" />
                   </div>
+                  <div className="flex-1">
+                    <p className="text-[13px] text-white">
+                      <span className="font-bold">{item.user}</span> {item.action} <span className="text-white/40">{item.time}</span>
+                    </p>
+                    {item.type === 'view' && (
+                      <div className="flex gap-2 mt-2">
+                        <button className="px-4 py-1.5 border border-white/35 text-white text-[12px] font-bold rounded-sm bg-transparent">Ignore</button>
+                        <button className="px-4 py-1.5 bg-[#FE2C55] text-white text-[12px] font-bold rounded-sm">Follow back</button>
+                      </div>
+                    )}
+                  </div>
+                  <div className={`w-10 h-14 ${item.type === 'view' ? 'bg-white/10' : 'bg-white/5'} rounded shrink-0`} />
                 </div>
-                <div className="w-10 h-14 bg-white/10 rounded shrink-0" />
-              </div>
+              ))}
            </div>
         </div>
 

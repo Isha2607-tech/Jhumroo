@@ -1,14 +1,17 @@
 import React, { useRef, useState, useEffect } from 'react';
 import VideoOverlay from './VideoOverlay';
 import AddToFavoritesModal from '../modals/AddToFavoritesModal';
-import { isVideoLiked, setVideoLikedState } from '../../../../utils/likedVideos';
-import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
-
-const allVideos = [...mockVideos, ...mockFollowingVideos];
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const VideoCard = ({ videoData, isActive }) => {
   const [playing, setPlaying] = useState(false);
-  const [isLiked, setIsLiked] = useState(() => isVideoLiked(videoData.id, allVideos));
+  const {
+    isReelLiked,
+    isReelSaved,
+    toggleLikedReel,
+    toggleSavedReel,
+  } = useAppContent();
+  const [isLiked, setIsLiked] = useState(() => isReelLiked(videoData.id));
   const [likesCount, setLikesCount] = useState(videoData.likes || 0);
   const videoRef = useRef(null);
   const lastTapRef = useRef(0);
@@ -16,10 +19,7 @@ const VideoCard = ({ videoData, isActive }) => {
   const [showHeart, setShowHeart] = useState(false);
 
   // --- Favorites State ---
-  const [isSaved, setIsSaved] = useState(() => {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    return favorites.includes(videoData.id);
-  });
+  const [isSaved, setIsSaved] = useState(() => isReelSaved(videoData.id));
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [showSavedToast, setShowSavedToast] = useState(false);
 
@@ -43,6 +43,11 @@ const VideoCard = ({ videoData, isActive }) => {
     }
   }, [isActive]);
 
+  useEffect(() => {
+    setIsLiked(isReelLiked(videoData.id));
+    setIsSaved(isReelSaved(videoData.id));
+  }, [videoData.id, isReelLiked, isReelSaved]);
+
   const onVideoPress = () => {
     if (playing) {
       videoRef.current.pause();
@@ -56,7 +61,7 @@ const VideoCard = ({ videoData, isActive }) => {
   const handleLikeClick = () => {
     setIsLiked(prev => {
       const nextLiked = !prev;
-      setVideoLikedState(videoData.id, nextLiked, allVideos);
+      toggleLikedReel(videoData.id);
       let numLikes = parseFloat(likesCount);
       if (!isNaN(numLikes)) {
           setLikesCount(`${(nextLiked ? numLikes + 0.1 : numLikes - 0.1).toFixed(1)}M`);
@@ -67,7 +72,7 @@ const VideoCard = ({ videoData, isActive }) => {
 
   const handleDoubleClick = (e) => {
       if (!isLiked) {
-         setVideoLikedState(videoData.id, true, allVideos);
+         toggleLikedReel(videoData.id);
          setIsLiked(true);
          let numLikes = parseFloat(likesCount);
          if (!isNaN(numLikes)) {
@@ -102,11 +107,7 @@ const VideoCard = ({ videoData, isActive }) => {
 
   // --- Save / Favorites Logic ---
   const addToFavorites = () => {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    if (!favorites.includes(videoData.id)) {
-      favorites.push(videoData.id);
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-    }
+    toggleSavedReel(videoData.id);
     setIsSaved(true);
     setShowSavedToast(true);
     clearTimeout(savedToastTimeoutRef.current);
@@ -114,9 +115,7 @@ const VideoCard = ({ videoData, isActive }) => {
   };
 
   const removeFromFavorites = () => {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const nextFavorites = favorites.filter(id => id !== videoData.id);
-    localStorage.setItem('favorites', JSON.stringify(nextFavorites));
+    toggleSavedReel(videoData.id);
     setIsSaved(false);
     setShowSavedToast(false);
     clearTimeout(savedToastTimeoutRef.current);

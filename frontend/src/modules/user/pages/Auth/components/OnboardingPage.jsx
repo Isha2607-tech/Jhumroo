@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { BiSearch, BiChevronRight } from 'react-icons/bi';
-
-const INTERESTS = [
-  { category: 'Entertainment & Culture', items: ['Trends', 'TV shows', 'Marvel', 'Comedy', 'Trends', 'BTS', 'HBO', 'Naruto'] },
-  { category: 'Home & Family', items: ['Motherhood', 'Parenting', 'Weddings', 'Fatherhood', 'Married life', 'Relationships'] },
-  { category: 'Fashion & Beauty', items: ['Makeup', 'Nails', 'Sneakers', 'Hydration'] },
-];
+import { useAppContent } from '../../../../../hooks/useAppContent';
 
 const OnboardingPage = ({ onComplete }) => {
+  const { config } = useAppContent();
+  const interests = config?.onboarding?.interests || [];
   const [selected, setSelected] = useState([]);
 
   const toggleInterest = (item) => {
@@ -36,7 +33,7 @@ const OnboardingPage = ({ onComplete }) => {
 
       {/* Interests Grid */}
       <div className="flex-1 overflow-y-auto px-6 pb-24 no-scrollbar">
-        {INTERESTS.map((section, idx) => (
+        {interests.map((section, idx) => (
           <div key={idx} className="mb-8">
             <div className="flex items-center gap-2 mb-4 text-white font-bold text-sm">
               {idx === 0 && <span className="text-lg">🎭</span>}

@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BiChevronLeft, BiCheck } from 'react-icons/bi';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const LanguagePage = () => {
     const navigate = useNavigate();
+    const { config } = useAppContent();
     const [selectedLanguage, setSelectedLanguage] = useState('English');
-
-    const languages = [
-        'English', 'Hindi', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Arabic', 'Russian'
-    ];
+    const languages = config?.settings?.languages || [];
 
     return (
         <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen">

@@ -2,37 +2,35 @@ import React, { useState } from 'react';
 import { BiChevronLeft, BiChevronRight, BiUser, BiLockAlt, BiShieldAlt, BiBell, BiMoon, BiGlobe, BiQuestionMark, BiLogOut } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../../context/ThemeContext';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const SettingsPage = ({ onLogout }) => {
     const navigate = useNavigate();
     const { isDarkMode, toggleTheme } = useTheme();
+    const { config, currentUserId, getProfile } = useAppContent();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const iconMap = {
+      user: BiUser,
+      lock: BiLockAlt,
+      shield: BiShieldAlt,
+      bell: BiBell,
+      moon: BiMoon,
+      globe: BiGlobe,
+      help: BiQuestionMark,
+      logout: BiLogOut,
+    };
 
-    const sections = [
-        {
-            title: "Account",
-            items: [
-                { icon: <BiUser size={20}/>, label: "Edit profile", route: "/settings/edit-profile" },
-                { icon: <BiLockAlt size={20}/>, label: "Privacy", route: "/settings/privacy" },
-                { icon: <BiShieldAlt size={20}/>, label: "Security", route: "/settings/security" }
-            ]
-        },
-        {
-            title: "Content & Display",
-            items: [
-                { icon: <BiBell size={20}/>, label: "Push notifications", route: "/settings/push-notifications" },
-                { icon: <BiMoon size={20}/>, label: isDarkMode ? "Dark mode" : "Light mode", isToggle: true },
-                { icon: <BiGlobe size={20}/>, label: "Language", route: "/settings/language" }
-            ]
-        },
-        {
-            title: "Support & About",
-            items: [
-                { icon: <BiQuestionMark size={20}/>, label: "Help Center", route: "/settings/help-center" },
-                { icon: <BiLogOut size={20}/>, label: "Log out", color: '#FF3B30', isLogout: true }
-            ]
-        }
-    ];
+    const sections = (config?.settings?.sections || []).map((section) => ({
+      ...section,
+      items: (section.items || []).map((item) => {
+        const Icon = item.icon ? iconMap[item.icon] : null;
+        return {
+          ...item,
+          label: item.isToggle ? (isDarkMode ? 'Dark mode' : 'Light mode') : item.label,
+          icon: Icon ? <Icon size={20} /> : null,
+        };
+      }),
+    }));
 
     const handleItemClick = (item) => {
         if (item.isToggle) {
@@ -63,11 +61,11 @@ const SettingsPage = ({ onLogout }) => {
                 <div className="theme-panel-card rounded-[18px] p-4 flex items-center justify-between mb-8 cursor-pointer active:opacity-90 transition-all shadow-sm">
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-white/10 bg-black/20">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=johnny_dance&style=circle" alt="Johnny Dance" className="w-full h-full object-cover scale-110" />
+                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserId}&style=circle`} alt={currentUserId} className="w-full h-full object-cover scale-110" />
                         </div>
                         <div className="flex flex-col">
-                            <h3 className="theme-text-primary text-[15px] font-bold mb-0.5">Johnny Dance</h3>
-                            <p className="theme-text-muted text-[13px] font-medium">@johnny_dance</p>
+                            <h3 className="theme-text-primary text-[15px] font-bold mb-0.5">{getProfile(currentUserId)?.fullName || 'User'}</h3>
+                            <p className="theme-text-muted text-[13px] font-medium">@{currentUserId}</p>
                         </div>
                     </div>
                     <BiChevronRight size={22} className="theme-text-faint" />

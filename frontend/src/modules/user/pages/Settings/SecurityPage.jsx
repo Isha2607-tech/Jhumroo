@@ -7,48 +7,37 @@ import {
   getSecurityAlertsSummary,
   getTwoStepSummary,
 } from '../../../../utils/securitySettings';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const SecurityPage = () => {
     const navigate = useNavigate();
     const securityAlertsSummary = getSecurityAlertsSummary();
-
-    const securitySections = [
-        {
-            title: "Security Status",
-            items: [
-                {
-                  icon: <BiShieldAlt size={20}/>,
-                  label: "Security alerts",
-                  value: securityAlertsSummary.value,
-                  color: securityAlertsSummary.color,
-                  route: "/settings/security/alerts",
-                },
-                {
-                  icon: <BiShield size={20}/>,
-                  label: "Your devices",
-                  value: getDevicesSummary(),
-                  route: "/settings/security/devices",
-                }
-            ]
-        },
-        {
-            title: "Login Security",
-            items: [
-                {
-                  icon: <BiKey size={20}/>,
-                  label: "Password",
-                  value: getPasswordSummary(),
-                  route: "/settings/security/password",
-                },
-                {
-                  icon: <BiShield size={20}/>,
-                  label: "2-step verification",
-                  value: getTwoStepSummary(),
-                  route: "/settings/security/two-step-verification",
-                }
-            ]
-        }
-    ];
+    const { config } = useAppContent();
+    const iconMap = {
+      alert: BiShieldAlt,
+      device: BiShield,
+      password: BiKey,
+      twoStep: BiShield,
+    };
+    const valueMap = {
+      securityAlerts: { value: securityAlertsSummary.value, color: securityAlertsSummary.color },
+      devices: { value: getDevicesSummary() },
+      password: { value: getPasswordSummary() },
+      twoStep: { value: getTwoStepSummary() },
+    };
+    const securitySections = (config?.settings?.securitySections || []).map((section) => ({
+      ...section,
+      items: (section.items || []).map((item) => {
+        const Icon = item.icon ? iconMap[item.icon] : null;
+        const mappedValue = item.value ? valueMap[item.value] : null;
+        return {
+          ...item,
+          icon: Icon ? <Icon size={20} /> : null,
+          value: mappedValue?.value,
+          color: mappedValue?.color,
+        };
+      }),
+    }));
 
     const handleItemClick = (item) => {
         if (item.route) {

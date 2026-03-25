@@ -1,21 +1,15 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getChatThread } from '../../../../utils/chatThreads';
-
-const galleryItems = [
-  'https://picsum.photos/seed/chat-gallery-1/260/360',
-  'https://picsum.photos/seed/chat-gallery-2/260/360',
-  'https://picsum.photos/seed/chat-gallery-3/260/360',
-  'https://picsum.photos/seed/chat-gallery-4/260/360',
-  'https://picsum.photos/seed/chat-gallery-5/260/360',
-  'https://picsum.photos/seed/chat-gallery-6/260/360',
-];
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const ChatMediaPage = ({ mode = 'gallery' }) => {
   const navigate = useNavigate();
   const { username = '' } = useParams();
+  const { config } = useAppContent();
   const thread = getChatThread(username);
   const isCamera = mode === 'camera';
+  const galleryItems = config?.inbox?.galleryItems || [];
 
   const handleBack = () => {
     if (window.history.length > 1) {

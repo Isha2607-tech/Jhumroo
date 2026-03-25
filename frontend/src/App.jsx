@@ -41,6 +41,8 @@ import NewMessagePage from './modules/user/pages/Inbox/NewMessagePage';
 import ChatPage from './modules/user/pages/Inbox/ChatPage';
 import ChatMediaPage from './modules/user/pages/Inbox/ChatMediaPage';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { AdminConfigProvider } from './context/AdminConfigContext';
+import AdminLayout from './modules/admin/AdminLayout';
 
 const MainLayout = ({ onLogout }) => {
   const location = useLocation();
@@ -131,11 +133,21 @@ const AppContent = () => {
     const [appState, setAppState] = useState('launch'); // launch, auth, onboarding, main
 
     useEffect(() => {
+        const isAdminRoute = location.pathname.startsWith('/admin');
+        document.body.classList.toggle('app-admin-route', isAdminRoute);
+
+        return () => {
+          document.body.classList.remove('app-admin-route');
+        };
+    }, [location.pathname]);
+
+    useEffect(() => {
         if (appState === 'launch') {
             const timer = setTimeout(() => {
-                setAppState('auth');
-                // Force navigate to welcome after splash if at root
-                if (location.pathname === '/') {
+                const isAdminRoute = location.pathname.startsWith('/admin');
+                setAppState(isAdminRoute ? 'main' : 'auth');
+                // Force navigate to welcome after splash only for regular app root
+                if (!isAdminRoute && location.pathname === '/') {
                   navigate('/welcome', { replace: true });
                 }
             }, 1800); 
@@ -172,7 +184,10 @@ const AppContent = () => {
                     ) : appState === 'onboarding' ? (
                         <Route path="/*" element={<OnboardingPage onComplete={handleOnboardingComplete} />} />
                     ) : (
-                        <Route path="/*" element={<MainLayout onLogout={handleLogout} />} />
+                        <>
+                          <Route path="/admin/*" element={<AdminLayout />} />
+                          <Route path="/*" element={<MainLayout onLogout={handleLogout} />} />
+                        </>
                     )}
                 </Routes>
             )}
@@ -184,7 +199,9 @@ function App() {
   return (
     <Router>
         <ThemeProvider>
-          <AppContent />
+          <AdminConfigProvider>
+            <AppContent />
+          </AdminConfigProvider>
         </ThemeProvider>
     </Router>
   );

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { BiBookmark, BiCheck, BiChevronLeft, BiShareAlt } from 'react-icons/bi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { getHashtagDetail } from '../../../../data/searchMockData';
+import { getHashtagDetail } from '../../../../utils/searchUtils';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const HASHTAG_FAVORITES_KEY = 'searchHashtagFavorites';
 const JOINED_HASHTAGS_KEY = 'joinedHashtags';
@@ -24,7 +25,8 @@ const SearchHashtagPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { tagSlug = 'food' } = useParams();
-  const hashtag = getHashtagDetail(tagSlug);
+  const { config } = useAppContent();
+  const hashtag = getHashtagDetail(tagSlug, config?.search);
   const [isFavorite, setIsFavorite] = useState(() =>
     readStoredList(HASHTAG_FAVORITES_KEY).includes(hashtag.slug),
   );
@@ -68,7 +70,7 @@ const SearchHashtagPage = () => {
   const handleOpenVideo = (selectedVideoId) => {
     navigate('/', {
       state: {
-        searchVideos: hashtag.galleryVideos,
+        searchVideos: hashtag.galleryVideos || [],
         activeVideoId: selectedVideoId,
       },
     });
@@ -126,7 +128,7 @@ const SearchHashtagPage = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-1.5 mt-6">
-          {hashtag.galleryVideos.map((video, index) => (
+          {(hashtag.galleryVideos || []).map((video, index) => (
             <button
               key={`${video.id}-${index}`}
               type="button"

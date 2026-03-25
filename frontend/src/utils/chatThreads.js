@@ -1,63 +1,6 @@
-const CHAT_THREADS_KEY = 'chatThreads';
+import { readAdminConfig, writeAdminConfig } from './adminConfigStorage';
+
 export const CURRENT_CHAT_USERNAME = 'johnny_dance';
-
-const DEFAULT_USERS = [
-  { username: 'nature_lover', displayName: 'Nature Lover', subtitle: 'Sharing peaceful moments', followers: '673.6K' },
-  { username: 'cute_pets', displayName: 'Cute Pets', subtitle: 'Pet clips and daily smiles', followers: '890K' },
-  { username: 'tech_guru', displayName: 'Tech Guru', subtitle: 'Editing tips and gadget talk', followers: '890K' },
-  { username: 'music_vibes', displayName: 'Music Vibes', subtitle: 'Always online for collabs', followers: '10M' },
-  { username: 'fire_safety', displayName: 'Fire Safety', subtitle: 'Community updates and support', followers: '50K' },
-  { username: 'Chloe_joy', displayName: 'Chloe Joy', subtitle: 'People you may know', followers: '264.9K' },
-  { username: 'Jenna_85', displayName: 'Jenna 85', subtitle: 'People you may know', followers: '120K' },
-  { username: 'layton_wi', displayName: 'Layton Williams', subtitle: 'Creative chats welcome', followers: '264.9K' },
-  { username: 'charlidame', displayName: "Charli D'Amelio", subtitle: 'Open for quick replies', followers: '150.2M' },
-  { username: 'khaby.lem', displayName: 'Khabane Lame', subtitle: 'Seen today', followers: '161.4M' },
-  { username: 'bellapoar', displayName: 'Bella Poarch', subtitle: 'Music and lifestyle', followers: '93M' },
-  { username: 'willsmith', displayName: 'Will Smith', subtitle: 'Stories and updates', followers: '74.2M' },
-  { username: 'ocean_vibes', displayName: 'Ocean Vibes', subtitle: 'Blue moods only', followers: '50K' },
-  { username: 'safari_explorer', displayName: 'Safari Explorer', subtitle: 'Travel and wildlife', followers: '120K' },
-  { username: 'OurBootprints', displayName: 'OurBootprints', subtitle: 'From your contacts', followers: '1.5M' },
-  { username: 'Jenzp85', displayName: 'Jenzp85', subtitle: 'Recently active', followers: '89K' },
-  { username: 'user884998785164', displayName: 'user884998785164', subtitle: 'From your contacts', followers: '11K' },
-];
-
-const DEFAULT_THREADS = [
-  {
-    username: 'nature_lover',
-    unreadCount: 2,
-    updatedAt: '2026-03-19T10:40:00.000Z',
-    messages: [
-      { id: 1, sender: 'them', text: 'Sunrise clips are ready, want them?', createdAt: '2026-03-19T10:28:00.000Z' },
-      { id: 2, sender: 'me', text: 'Yes, send me the best ones.', createdAt: '2026-03-19T10:31:00.000Z' },
-      { id: 3, sender: 'them', text: 'Uploading now, check in a minute.', createdAt: '2026-03-19T10:40:00.000Z' },
-    ],
-  },
-  {
-    username: 'tech_guru',
-    unreadCount: 1,
-    updatedAt: '2026-03-18T18:12:00.000Z',
-    messages: [
-      { id: 4, sender: 'them', text: 'That transition looked clean. Need the settings?', createdAt: '2026-03-18T18:12:00.000Z' },
-    ],
-  },
-  {
-    username: 'cute_pets',
-    unreadCount: 0,
-    updatedAt: '2026-03-17T14:05:00.000Z',
-    messages: [
-      { id: 5, sender: 'them', text: 'We just posted a new puppy clip.', createdAt: '2026-03-17T13:40:00.000Z' },
-      { id: 6, sender: 'me', text: 'Looks adorable, I will watch it.', createdAt: '2026-03-17T14:05:00.000Z' },
-    ],
-  },
-  {
-    username: 'Chloe_joy',
-    unreadCount: 3,
-    updatedAt: '2026-03-16T09:15:00.000Z',
-    messages: [
-      { id: 7, sender: 'them', text: 'Hey, are you free for a quick chat later?', createdAt: '2026-03-16T09:15:00.000Z' },
-    ],
-  },
-];
 
 const getFallbackDisplayName = (username) =>
   username
@@ -66,22 +9,20 @@ const getFallbackDisplayName = (username) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ') || username;
 
-const getStoredThreads = () => {
-  try {
-    const storedValue = localStorage.getItem(CHAT_THREADS_KEY);
-    if (!storedValue) {
-      return DEFAULT_THREADS;
-    }
-
-    const parsedValue = JSON.parse(storedValue);
-    return Array.isArray(parsedValue) ? parsedValue : DEFAULT_THREADS;
-  } catch {
-    return DEFAULT_THREADS;
-  }
+const getChatConfig = () => {
+  const config = readAdminConfig();
+  return config?.inbox?.chat || { users: [], threads: [] };
 };
 
-const persistThreads = (threads) => {
-  localStorage.setItem(CHAT_THREADS_KEY, JSON.stringify(threads));
+const persistChatConfig = (chatConfig) => {
+  const currentConfig = readAdminConfig();
+  writeAdminConfig({
+    ...currentConfig,
+    inbox: {
+      ...currentConfig.inbox,
+      chat: chatConfig,
+    },
+  });
 };
 
 const sortThreads = (threads) =>
@@ -89,7 +30,8 @@ const sortThreads = (threads) =>
 
 const getUserMap = () => {
   const map = new Map();
-  DEFAULT_USERS.forEach((user) => {
+  const chatUsers = getChatConfig().users || [];
+  chatUsers.forEach((user) => {
     map.set(user.username, user);
   });
   return map;
@@ -158,12 +100,12 @@ export const formatBubbleTimestamp = (isoString) =>
   new Date(isoString).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
 export const getChatUsers = () =>
-  DEFAULT_USERS.filter((user) => user.username !== CURRENT_CHAT_USERNAME).sort((left, right) =>
+  (getChatConfig().users || []).filter((user) => user.username !== CURRENT_CHAT_USERNAME).sort((left, right) =>
     left.displayName.localeCompare(right.displayName)
   );
 
 export const getChatThreads = () =>
-  sortThreads(getStoredThreads()).map((thread) => {
+  sortThreads(getChatConfig().threads || []).map((thread) => {
     const user = enrichUser(thread.username);
     const lastMessage = getLastMessage(thread);
 
@@ -176,7 +118,8 @@ export const getChatThreads = () =>
   });
 
 export const ensureChatThread = (username) => {
-  const threads = getStoredThreads();
+  const chatConfig = getChatConfig();
+  const threads = chatConfig.threads || [];
   const existingThread = threads.find((thread) => thread.username === username);
 
   if (existingThread) {
@@ -187,7 +130,7 @@ export const ensureChatThread = (username) => {
   }
 
   const newThread = buildStarterThread(username);
-  persistThreads([...threads, newThread]);
+  persistChatConfig({ ...chatConfig, threads: [...threads, newThread] });
 
   return {
     ...newThread,
@@ -204,7 +147,8 @@ export const getChatThread = (username) => {
 };
 
 export const markChatThreadRead = (username) => {
-  const threads = getStoredThreads();
+  const chatConfig = getChatConfig();
+  const threads = chatConfig.threads || [];
   const updatedThreads = threads.map((thread) =>
     thread.username === username
       ? {
@@ -214,7 +158,7 @@ export const markChatThreadRead = (username) => {
       : thread
   );
 
-  persistThreads(updatedThreads);
+  persistChatConfig({ ...chatConfig, threads: updatedThreads });
   return getChatThread(username);
 };
 
@@ -233,7 +177,8 @@ export const sendChatMessage = (username, text) => {
     createdAt: now,
   };
 
-  const threads = getStoredThreads();
+  const chatConfig = getChatConfig();
+  const threads = chatConfig.threads || [];
   const nextThreads = threads.map((item) =>
     item.username === username
       ? {
@@ -245,6 +190,6 @@ export const sendChatMessage = (username, text) => {
       : item
   );
 
-  persistThreads(nextThreads);
+  persistChatConfig({ ...chatConfig, threads: nextThreads });
   return getChatThread(username);
 };

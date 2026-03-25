@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import VideoCard from '../../components/video/VideoCard';
-import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { reelSections, getReelsByIds } = useAppContent();
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
-  const [currentTab, setCurrentTab] = useState('foryou');
+  const defaultTab = reelSections[0]?.id || 'foryou';
+  const [currentTab, setCurrentTab] = useState(defaultTab);
   const containerRef = useRef(null);
 
   // Onboarding sequence - Only show if not seen before
@@ -41,9 +43,7 @@ const HomePage = () => {
   const activeSearchVideoId = location.state?.activeVideoId;
   const displayedVideos = isSearchFeed
     ? location.state.searchVideos
-    : currentTab === 'foryou'
-      ? mockVideos
-      : mockFollowingVideos;
+    : getReelsByIds(reelSections.find((section) => section.id === currentTab)?.reelIds || []);
 
   const handleTabChange = (nextTab) => {
     setCurrentTab(nextTab);
@@ -61,6 +61,9 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
+    if (defaultTab && currentTab !== defaultTab && !reelSections.find((section) => section.id === currentTab)) {
+      setCurrentTab(defaultTab);
+    }
     // Reset index when switching tabs
     setActiveVideoIndex(0);
     if (containerRef.current) {
@@ -90,7 +93,7 @@ const HomePage = () => {
     return () => {
       videoElements.forEach((el) => observer.unobserve(el));
     };
-  }, [currentTab, isSearchFeed, location.key]);
+  }, [currentTab, isSearchFeed, location.key, defaultTab, reelSections]);
 
   useEffect(() => {
     if (!isSearchFeed || !activeSearchVideoId || !containerRef.current) {
@@ -127,26 +130,20 @@ const HomePage = () => {
           <span className="text-[10px] font-bold">LIVE</span>
         </div>
         <div className="flex gap-5 pointer-events-none">
-          <span
-            className={`text-[17px] font-semibold cursor-pointer pointer-events-auto transition-colors duration-200 relative shadow-black drop-shadow-md ${currentTab === 'following' ? 'text-white' : 'text-white/60'
+          {reelSections.map((section) => (
+            <span
+              key={section.id}
+              className={`text-[17px] font-semibold cursor-pointer pointer-events-auto transition-colors duration-200 relative shadow-black drop-shadow-md ${
+                currentTab === section.id ? 'text-white' : 'text-white/60'
               }`}
-            onClick={() => handleTabChange('following')}
-          >
-            Following
-            {currentTab === 'following' && (
-              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-white rounded-full" />
-            )}
-          </span>
-          <span
-            className={`text-[17px] font-semibold cursor-pointer pointer-events-auto transition-colors duration-200 relative shadow-black drop-shadow-md ${currentTab === 'foryou' ? 'text-white' : 'text-white/60'
-              }`}
-            onClick={() => handleTabChange('foryou')}
-          >
-            For You
-            {currentTab === 'foryou' && (
-              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-white rounded-full" />
-            )}
-          </span>
+              onClick={() => handleTabChange(section.id)}
+            >
+              {section.label}
+              {currentTab === section.id && (
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-white rounded-full" />
+              )}
+            </span>
+          ))}
         </div>
         <div className="pointer-events-auto text-white flex flex-col items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

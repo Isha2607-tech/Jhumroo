@@ -10,6 +10,7 @@ import OtpScreen from './components/OtpScreen';
 // Import background image
 import loginBg from '../../../../assets/loginPage/LoginPageImage.png';
 import logo from '../../../../assets/loginPage/Logo.png';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 /* ──────────────── Reusable UI Components ──────────────── */
 
@@ -107,13 +108,15 @@ const PickerColumn = ({ items, selectedIndex, onChange }) => {
 };
 
 /* ──────────────── Auth Page ──────────────── */
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const DEFAULT_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
 const YEARS = Array.from({ length: 60 }, (_, i) => 2025 - i);
 
 const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { config } = useAppContent();
+  const months = config?.auth?.months || DEFAULT_MONTHS;
 
   // Set mode based on current URL path
   const [mode, setMode] = useState(location.pathname === '/login' ? 'login' : initialMode);
@@ -151,7 +154,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState('');
 
-  const selectedDate = `${DAYS[dayIdx]} ${MONTHS[monthIdx]} ${YEARS[yearIdx]}`;
+  const selectedDate = `${DAYS[dayIdx]} ${months[monthIdx]} ${YEARS[yearIdx]}`;
 
   const handleNextBirthday = () => {
     if (!birthdaySelected) {
@@ -232,39 +235,54 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
 
   /* ─── Step 2: Auth Methods ─── */
   if (step === 2) {
-    const methods = [
-      {
-        id: 'phone',
-        icon: <BiUser size={22} className="text-white shrink-0" />,
-        label: "Use phone or email",
-        onClick: () => setStep(mode === 'signup' ? 3 : 4)
-      },
-      {
-        id: 'facebook',
-        icon: <FaFacebook size={22} className="text-white shrink-0" />,
-        label: "Continue with Facebook",
-        className: "hover:bg-[#1877F2]/20"
-      },
-      {
-        id: 'apple',
-        icon: <FaApple size={22} className="text-white shrink-0" />,
-        label: "Continue with Apple",
-        className: "hover:bg-white/10"
-      },
-      {
-        id: 'google',
-        icon: <FcGoogle size={24} className="shrink-0" />,
-        label: "Continue with Google",
-        onClick: mode === 'login' ? () => setShowAccountNotFound(true) : undefined,
-        className: "hover:bg-white/10"
-      },
-      {
-        id: 'twitter',
-        icon: <FaTwitter size={22} className="text-white shrink-0" />,
-        label: "Continue with Twitter",
-        className: "hover:bg-[#1DA1F2]/20"
-      }
+    const methodConfigs = config?.auth?.methods || [
+      { id: 'phone', label: 'Use phone or email' },
+      { id: 'facebook', label: 'Continue with Facebook' },
+      { id: 'apple', label: 'Continue with Apple' },
+      { id: 'google', label: 'Continue with Google' },
+      { id: 'twitter', label: 'Continue with Twitter' },
     ];
+
+    const methods = methodConfigs.map((method) => {
+      switch (method.id) {
+        case 'phone':
+          return {
+            ...method,
+            icon: <BiUser size={22} className="text-white shrink-0" />,
+            onClick: () => setStep(mode === 'signup' ? 3 : 4),
+          };
+        case 'facebook':
+          return {
+            ...method,
+            icon: <FaFacebook size={22} className="text-white shrink-0" />,
+            className: "hover:bg-[#1877F2]/20",
+          };
+        case 'apple':
+          return {
+            ...method,
+            icon: <FaApple size={22} className="text-white shrink-0" />,
+            className: "hover:bg-white/10",
+          };
+        case 'google':
+          return {
+            ...method,
+            icon: <FcGoogle size={24} className="shrink-0" />,
+            onClick: mode === 'login' ? () => setShowAccountNotFound(true) : undefined,
+            className: "hover:bg-white/10",
+          };
+        case 'twitter':
+          return {
+            ...method,
+            icon: <FaTwitter size={22} className="text-white shrink-0" />,
+            className: "hover:bg-[#1DA1F2]/20",
+          };
+        default:
+          return {
+            ...method,
+            icon: <BiUser size={22} className="text-white shrink-0" />,
+          };
+      }
+    });
 
     const filteredMethods = mode === 'login'
       ? methods.filter(m => m.id === 'phone' || m.id === 'google')
@@ -374,7 +392,7 @@ const AuthPage = ({ onComplete, initialMode = 'signup' }) => {
             style={{ paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem))' }}
           >
             <div className="flex" style={{ height: 'clamp(150px, 28vh, 180px)' }}>
-              <PickerColumn items={MONTHS} selectedIndex={monthIdx} onChange={(i) => { setMonthIdx(i); setBirthdaySelected(true); }} />
+              <PickerColumn items={months} selectedIndex={monthIdx} onChange={(i) => { setMonthIdx(i); setBirthdaySelected(true); }} />
               <PickerColumn items={DAYS} selectedIndex={dayIdx} onChange={(i) => { setDayIdx(i); setBirthdaySelected(true); }} />
               <PickerColumn items={YEARS} selectedIndex={yearIdx} onChange={(i) => { setYearIdx(i); setBirthdaySelected(true); }} />
             </div>

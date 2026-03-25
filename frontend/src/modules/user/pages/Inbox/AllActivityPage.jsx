@@ -1,35 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const mockActivities = [
-  {
-    group: 'Yesterday',
-    items: [
-      { id: 1, user: 'OurBootprints', action: 'from your contacts is on TikTok as ourbootprints.', time: '1d', type: 'contact' },
-    ],
-  },
-  {
-    group: 'This week',
-    items: [
-      { id: 2, user: 'Jenzp85', action: 'just viewed the video you shared.', time: '3d', type: 'view' },
-      { id: 3, user: 'Shushpann London', action: 'from your contacts is on TikTok as shushpanick.', time: '4d', type: 'contact' },
-    ],
-  },
-  {
-    group: 'This month',
-    items: [
-      { id: 4, user: 'Chloe', action: 'just viewed the video you shared.', time: '3w', type: 'view' },
-      { id: 5, user: 'faith', action: 'from your contacts is on TikTok as faithbinghamn.', time: '4w', type: 'contact' },
-      { id: 6, user: 'Ellie', action: 'just viewed the video you shared.', time: '4w', type: 'view' },
-    ],
-  },
-  {
-    group: 'Previous',
-    items: [
-      { id: 7, user: 'ellie', action: 'from your contacts is on TikTok as fellie748.', time: '4w', type: 'contact' },
-    ],
-  },
-];
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const ActivityItem = ({ item }) => {
   const [localFollowing, setLocalFollowing] = useState(false);
@@ -91,6 +62,8 @@ const ActivityItem = ({ item }) => {
 
 const AllActivityPage = () => {
   const navigate = useNavigate();
+  const { config } = useAppContent();
+  const mockActivities = config?.inbox?.activityGroups || [];
 
   return (
     <div className="page-container theme-surface-page flex flex-col">

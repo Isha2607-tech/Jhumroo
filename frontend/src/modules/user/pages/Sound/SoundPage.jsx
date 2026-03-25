@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { IoShareOutline, IoPlayOutline } from 'react-icons/io5';
-import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
 import { useTheme } from '../../../../context/ThemeContext';
-
-const allVideos = [...mockVideos, ...mockFollowingVideos];
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const SoundPage = () => {
   const { musicName } = useParams();
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const { reelLibrary } = useAppContent();
   const decodedMusic = decodeURIComponent(musicName || '');
 
   // Check if this sound is already in favorites
@@ -19,11 +18,11 @@ const SoundPage = () => {
   });
 
   // Filter videos that use this sound
-  const soundVideos = allVideos.filter(v =>
+  const soundVideos = reelLibrary.filter(v =>
     v.music?.toLowerCase() === decodedMusic.toLowerCase()
   );
   // Fallback: show all videos if none match (for demo realism)
-  const displayVideos = soundVideos.length > 0 ? soundVideos : allVideos;
+  const displayVideos = soundVideos.length > 0 ? soundVideos : reelLibrary;
 
   const handleAddToFavorites = () => {
     if (isSoundSaved) return;

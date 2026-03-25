@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { BiCheck } from 'react-icons/bi';
 import SettingsSubPageLayout from './SettingsSubPageLayout';
 import { getSecuritySettings, setTwoStepVerification } from '../../../../utils/securitySettings';
-
-const verificationMethods = ['SMS', 'Email', 'Authenticator app'];
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const TwoStepVerificationPage = () => {
+  const { config } = useAppContent();
+  const verificationMethods = config?.settings?.verificationMethods || [];
   const [securitySettings, setSecuritySettings] = useState(() => getSecuritySettings());
 
   const handleToggle = () => {

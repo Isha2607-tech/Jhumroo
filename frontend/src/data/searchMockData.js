@@ -74,7 +74,7 @@ export const SEARCH_DISCOVERY_SUGGESTIONS = [
   { id: 'discover-10', label: 'IKEA Hacks', accent: '#c7ceda' },
 ];
 
-const SEARCH_TYPEAHEAD_POOL = [
+export const SEARCH_TYPEAHEAD_POOL = [
   { label: 'food tiktok', kind: 'search' },
   { label: 'funny', kind: 'search' },
   { label: 'fortnite', kind: 'search', verified: true, accessory: 'cherries' },

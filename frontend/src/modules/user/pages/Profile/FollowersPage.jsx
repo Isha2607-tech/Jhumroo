@@ -1,36 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { mockVideos, mockFollowingVideos } from '../../../../data/mockData';
-
-const allVideos = [...mockVideos, ...mockFollowingVideos];
-
-const mockUserStats = {
-  default: { followers: '673.6K', following: '457' },
-  johnny_dance: { followers: '1.5M', following: '124' }
-};
-
-const generateUserLists = (username) => {
-  // Different lists just to show difference between tabs smoothly
-  const followingList = [
-    { username: 'johnny_dance', followers: '1.5M' },
-    { username: 'tech_guru', followers: '890K' },
-    { username: 'music_vibes', followers: '10M' }
-  ];
-  const followersList = [
-    { username: 'nature_lover', followers: '2.5M' },
-    { username: 'fire_safety', followers: '50K' },
-    { username: 'escape_artist', followers: '120K' },
-    { username: 'tech_guru', followers: '890K' }
-  ];
-  const suggestedList = [
-    { username: 'beabadobee', followers: '1.7M' },
-    { username: 'layton_williams', followers: '264.9K' },
-    { username: 'viral_dancer', followers: '5.2M' },
-    ...followingList
-  ];
-  
-  return { following: followingList, followers: followersList, suggested: suggestedList };
-};
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const UserCard = ({ user }) => {
   const [following, setFollowing] = useState(false);
@@ -55,7 +25,7 @@ const UserCard = ({ user }) => {
       <button
         onClick={(e) => {
           e.stopPropagation();
-          setFollowing(f => !f);
+          setFollowing((prev) => !prev);
         }}
         className={`px-5 py-1.5 rounded-md text-[13px] font-bold transition-all active:scale-95 shrink-0 ${
           following
@@ -73,12 +43,12 @@ const FollowersPage = () => {
   const { username } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const stats = mockUserStats[username] || mockUserStats.default;
+  const { config } = useAppContent();
+  const stats = config?.users?.followerStats?.[username] || config?.users?.followerStats?.default || {};
 
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'suggested');
-  const [usersObj] = useState(() => generateUserLists(username));
-  
-  // Use effect to handle back/forward navigation state smoothly
+  const [usersObj] = useState(() => config?.users?.followerLists || { following: [], followers: [], suggested: [] });
+
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
@@ -86,8 +56,8 @@ const FollowersPage = () => {
   }, [location.state]);
 
   const tabs = [
-    { id: 'following', label: `Following ${stats.following}` },
-    { id: 'followers', label: `Followers ${stats.followers}` },
+    { id: 'following', label: `Following ${stats.following || ''}` },
+    { id: 'followers', label: `Followers ${stats.followers || ''}` },
     { id: 'suggested', label: 'Suggested' },
   ];
 
@@ -108,7 +78,7 @@ const FollowersPage = () => {
 
       {/* Tabs */}
       <div className="flex border-b border-white/10 shrink-0">
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             className={`flex-1 py-3 text-[13px] font-semibold relative transition-colors ${

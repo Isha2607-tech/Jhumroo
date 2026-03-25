@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAppContent } from '../../../../hooks/useAppContent';
 import {
   formatBubbleTimestamp,
   getChatThread,
@@ -10,6 +11,7 @@ import {
 const ChatPage = () => {
   const navigate = useNavigate();
   const { username = '' } = useParams();
+  const { config } = useAppContent();
   const [thread, setThread] = useState(() => getChatThread(username));
   const [draft, setDraft] = useState('');
   const [isAttachmentMenuOpen, setIsAttachmentMenuOpen] = useState(false);
@@ -44,39 +46,26 @@ const ChatPage = () => {
     setDraft('');
   };
 
-  const attachmentOptions = [
-    {
-      key: 'gallery',
-      label: 'Gallery',
-      hint: 'Open photos',
-      onClick: () => {
-        setIsAttachmentMenuOpen(false);
-        navigate(`/inbox/chat/${username}/gallery`);
-      },
-      icon: (
+  const attachmentOptions = (config?.inbox?.attachmentOptions || []).map((option) => ({
+    ...option,
+    onClick: () => {
+      setIsAttachmentMenuOpen(false);
+      navigate(`/inbox/chat/${username}/${option.route}`);
+    },
+    icon:
+      option.key === 'gallery' ? (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
           <rect x="3" y="3" width="18" height="18" rx="3" />
           <circle cx="9" cy="9" r="1.6" />
           <path d="m21 15-4.5-4.5L7 20" />
         </svg>
-      ),
-    },
-    {
-      key: 'camera',
-      label: 'Camera',
-      hint: 'Open camera',
-      onClick: () => {
-        setIsAttachmentMenuOpen(false);
-        navigate(`/inbox/chat/${username}/camera`);
-      },
-      icon: (
+      ) : (
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
           <path d="M14.5 4h-5L7.5 6H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2.5L14.5 4Z" />
           <circle cx="12" cy="12" r="3.5" />
         </svg>
       ),
-    },
-  ];
+  }));
 
   return (
     <div className="page-container relative pb-0 theme-chat-page text-white flex flex-col">

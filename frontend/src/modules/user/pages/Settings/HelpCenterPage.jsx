@@ -1,26 +1,27 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BiChevronLeft, BiSearch, BiChevronRight, BiMessageDetail, BiShield, BiSolidLockAlt, BiQuestionMark } from 'react-icons/bi';
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const HelpCenterPage = () => {
     const navigate = useNavigate();
-
-    const sections = [
-        {
-            title: "Safety",
-            items: [
-                { icon: <BiShield size={20}/>, label: "Safety Center", route: "/settings/help-center/safety-center" },
-                { icon: <BiSolidLockAlt size={20}/>, label: "Privacy and Security", route: "/settings/help-center/privacy-security" }
-            ]
-        },
-        {
-            title: "Support",
-            items: [
-                { icon: <BiQuestionMark size={20}/>, label: "Report a problem", route: "/settings/help-center/report-problem" },
-                { icon: <BiMessageDetail size={20}/>, label: "Help center", route: "/settings/help-center/articles" }
-            ]
-        }
-    ];
+    const { config } = useAppContent();
+    const iconMap = {
+      safety: BiShield,
+      privacy: BiSolidLockAlt,
+      report: BiQuestionMark,
+      help: BiMessageDetail,
+    };
+    const sections = (config?.settings?.helpCenterSections || []).map((section) => ({
+      ...section,
+      items: (section.items || []).map((item) => {
+        const Icon = item.icon ? iconMap[item.icon] : null;
+        return {
+          ...item,
+          icon: Icon ? <Icon size={20} /> : null,
+        };
+      }),
+    }));
 
     return (
         <div className="page-container pb-0 theme-surface-page flex flex-col min-h-screen font-sans">

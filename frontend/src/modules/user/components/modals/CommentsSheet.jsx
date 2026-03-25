@@ -1,27 +1,22 @@
 import React, { useState } from 'react';
 import { BiX, BiSend, BiHeart } from 'react-icons/bi';
 import { useTheme } from '../../../../context/ThemeContext';
-
-const QUICK_EMOJIS = ['😁', '🥰', '😂', '😳', '😉', '😅', '🥺'];
+import { useAppContent } from '../../../../hooks/useAppContent';
 
 const CommentsSheet = ({ isOpen, onClose, commentCount = 450 }) => {
   const { isDarkMode } = useTheme();
+  const { config } = useAppContent();
+  const quickEmojis = config?.comments?.quickEmojis || [];
   const [newComment, setNewComment] = useState('');
   const [keyboardOffset, setKeyboardOffset] = useState(0);
-  const [commentsList, setCommentsList] = useState([
-    { id: 1, user: 'dancing_queen', text: 'This is absolutely amazing! 🔥', time: '2h', likes: 124 },
-    { id: 2, user: 'user123_cool', text: 'First! And this is so true 😂', time: '3h', likes: 89 },
-    { id: 3, user: 'tech_guru', text: 'How did you edit this?', time: '5h', likes: 45 },
-    { id: 4, user: 'travel_lover', text: 'Wow, added to my bucket list 🌎', time: '1d', likes: 432 },
-    { id: 5, user: 'music_fanatic', text: 'Song name please?!', time: '2d', likes: 12 }
-  ]);
+  const [commentsList, setCommentsList] = useState(config?.comments?.seedComments || []);
 
   const handleSend = () => {
     if (!newComment.trim()) return;
 
     const newCommentObj = {
       id: Date.now(),
-      user: 'johnny_dance', // Hardcoded for demo
+      user: 'johnny_dance',
       text: newComment,
       time: 'Just now',
       likes: 0
@@ -162,7 +157,7 @@ const CommentsSheet = ({ isOpen, onClose, commentCount = 450 }) => {
           }`}
         >
             <div className="mb-3 -mx-1 flex items-center gap-2 overflow-x-auto no-scrollbar">
-                {QUICK_EMOJIS.map((emoji) => (
+                {quickEmojis.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"

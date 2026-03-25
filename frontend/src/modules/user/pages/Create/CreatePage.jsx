@@ -32,26 +32,8 @@ import {
 } from 'react-icons/io5';
 import { FiScissors } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import {
-  CREATE_AUDIENCE_OPTIONS,
-  CREATE_CANVAS_IMAGE,
-  CREATE_EDITOR_ACTIONS,
-  CREATE_EDITOR_PRIMARY_TABS,
-  CREATE_FILTER_GROUPS,
-  CREATE_GALLERY_ITEMS,
-  CREATE_HASHTAG_SUGGESTIONS,
-  CREATE_LINK_OPTIONS,
-  CREATE_LOCATION_CHIPS,
-  CREATE_LOCATION_RESULTS,
-  CREATE_PREVIEW_TOOLS,
-  CREATE_SHARE_TARGETS,
-  CREATE_SIDE_TOOLS,
-  CREATE_SOUND_LIBRARY,
-} from './createMockData';
 import { useTheme } from '../../../../context/ThemeContext';
-
-const DURATION_OPTIONS = ['3m', '60s', '15s', 'Now'];
-const SPEED_OPTIONS = ['0.3x', '0.5x', '1x', '2x', '3x'];
+import { useAppContent } from '../../../../hooks/useAppContent';
 const SOUND_FAVORITES_KEY = 'soundFavorites';
 
 const createInitialPostState = () => ({
@@ -249,6 +231,24 @@ const MediaPreview = ({ image, rotation = 0, className = '', framed = false }) =
 const CreatePage = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const { config } = useAppContent();
+  const createFlow = config?.createFlow || {};
+  const DURATION_OPTIONS = createFlow.durations || ['3m', '60s', '15s', 'Now'];
+  const SPEED_OPTIONS = createFlow.speeds || ['0.3x', '0.5x', '1x', '2x', '3x'];
+  const CREATE_CANVAS_IMAGE = createFlow.canvasImage || '';
+  const CREATE_GALLERY_ITEMS = createFlow.galleryItems || [];
+  const CREATE_FILTER_GROUPS = createFlow.filters || [];
+  const CREATE_SOUND_LIBRARY = createFlow.sounds || [];
+  const CREATE_LOCATION_CHIPS = createFlow.locations?.chips || [];
+  const CREATE_LOCATION_RESULTS = createFlow.locations?.results || [];
+  const CREATE_HASHTAG_SUGGESTIONS = createFlow.hashtagSuggestions || [];
+  const CREATE_LINK_OPTIONS = createFlow.linkOptions || [];
+  const CREATE_AUDIENCE_OPTIONS = createFlow.audienceOptions || [];
+  const CREATE_SHARE_TARGETS = createFlow.shareTargets || [];
+  const CREATE_SIDE_TOOLS = createFlow.sideTools || [];
+  const CREATE_PREVIEW_TOOLS = createFlow.previewTools || [];
+  const CREATE_EDITOR_ACTIONS = createFlow.editorActions || [];
+  const CREATE_EDITOR_PRIMARY_TABS = createFlow.editorPrimaryTabs || [];
   const [stageStack, setStageStack] = useState(['camera']);
   const [activeSheet, setActiveSheet] = useState(null);
   const [activeCameraTool, setActiveCameraTool] = useState(null);
@@ -261,7 +261,9 @@ const CreatePage = () => {
   const [captureMode, setCaptureMode] = useState('templates');
   const [activeFilterGroup, setActiveFilterGroup] = useState('portrait');
   const [selectedFilter, setSelectedFilter] = useState('Normal');
-  const [selectedSound, setSelectedSound] = useState(CREATE_SOUND_LIBRARY[0]);
+  const [selectedSound, setSelectedSound] = useState(
+    CREATE_SOUND_LIBRARY[0] || { id: 'sound-original', title: 'Original sound', artist: 'Jhumroo', duration: '00:00', cover: '' }
+  );
   const [selectedGalleryIds, setSelectedGalleryIds] = useState(['gallery-1']);
   const [galleryCollection, setGalleryCollection] = useState('all');
   const [editorTab, setEditorTab] = useState('edit');
@@ -445,7 +447,7 @@ const CreatePage = () => {
   }, [selectedLocationQuery]);
 
   const activeFilterOptions =
-    CREATE_FILTER_GROUPS.find((group) => group.id === activeFilterGroup)?.filters || CREATE_FILTER_GROUPS[0].filters;
+    CREATE_FILTER_GROUPS.find((group) => group.id === activeFilterGroup)?.filters || CREATE_FILTER_GROUPS[0]?.filters || [];
 
   const hashtagMatch = postState.caption.match(/(^|\s)#([a-z0-9_]*)$/i);
   const hashtagSuggestions = hashtagMatch
