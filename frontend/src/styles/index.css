@@ -115,11 +115,13 @@
   }
 
   @media (min-width: 600px) {
-    body.app-admin-route {
+    body.app-admin-route,
+    body.app-website-route {
       align-items: stretch;
     }
 
-    body.app-admin-route #root {
+    body.app-admin-route #root,
+    body.app-website-route #root {
       width: 100vw !important;
       max-width: 100vw !important;
       height: 100dvh !important;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import BottomNavBar from './modules/user/components/navigation/BottomNavBar';
 import HomePage from './modules/user/pages/Home/HomePage';
 import SearchPage from './modules/user/pages/Search/SearchPage';
@@ -43,6 +43,7 @@ import ChatMediaPage from './modules/user/pages/Inbox/ChatMediaPage';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AdminConfigProvider } from './context/AdminConfigContext';
 import AdminLayout from './modules/admin/AdminLayout';
+import WebsiteLandingPage from './modules/website/WebsiteLandingPage';
 
 const MainLayout = ({ onLogout }) => {
   const location = useLocation();
@@ -144,16 +145,12 @@ const AppContent = () => {
     useEffect(() => {
         if (appState === 'launch') {
             const timer = setTimeout(() => {
-                const isAdminRoute = location.pathname.startsWith('/admin');
-                setAppState(isAdminRoute ? 'main' : 'auth');
-                // Force navigate to welcome after splash only for regular app root
-                if (!isAdminRoute && location.pathname === '/') {
-                  navigate('/welcome', { replace: true });
-                }
+                // Hamesha 'main' state mein jao - reload pe page wahi rahega jahan tha
+                setAppState('main');
             }, 1800); 
             return () => clearTimeout(timer);
         }
-    }, [appState, navigate, location.pathname]);
+    }, [appState]);
 
     const handleAuthComplete = () => {
         setAppState('onboarding');
@@ -165,8 +162,8 @@ const AppContent = () => {
     };
 
     const handleLogout = () => {
-        setAppState('auth');
-        navigate('/welcome', { replace: true });
+        // Logout ke baad home page pe le jao, login page pe nahi
+        navigate('/', { replace: true });
     };
 
     return (
@@ -174,18 +171,15 @@ const AppContent = () => {
             {appState === 'launch' && <Splash />}
             {appState !== 'launch' && (
                 <Routes>
-                    {appState === 'auth' ? (
-                        <>
-                            <Route path="/welcome" element={<AuthPage onComplete={handleAuthComplete} initialMode="signup" />} />
-                            <Route path="/login" element={<AuthPage onComplete={handleAuthComplete} initialMode="login" />} />
-                            <Route path="/signup" element={<AuthPage onComplete={handleAuthComplete} initialMode="signup" />} />
-                            <Route path="*" element={<Navigate to="/welcome" replace />} />
-                        </>
-                    ) : appState === 'onboarding' ? (
+                    {appState === 'onboarding' ? (
                         <Route path="/*" element={<OnboardingPage onComplete={handleOnboardingComplete} />} />
                     ) : (
                         <>
                           <Route path="/admin/*" element={<AdminLayout />} />
+                          <Route path="/website/*" element={<WebsiteLandingPage />} />
+                          <Route path="/welcome" element={<AuthPage onComplete={handleAuthComplete} initialMode="signup" />} />
+                          <Route path="/login" element={<AuthPage onComplete={handleAuthComplete} initialMode="login" />} />
+                          <Route path="/signup" element={<AuthPage onComplete={handleAuthComplete} initialMode="signup" />} />
                           <Route path="/*" element={<MainLayout onLogout={handleLogout} />} />
                         </>
                     )}

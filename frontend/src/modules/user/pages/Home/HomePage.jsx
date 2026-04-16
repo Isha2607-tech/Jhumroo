@@ -133,9 +133,8 @@ const HomePage = () => {
           {reelSections.map((section) => (
             <span
               key={section.id}
-              className={`text-[17px] font-semibold cursor-pointer pointer-events-auto transition-colors duration-200 relative shadow-black drop-shadow-md ${
-                currentTab === section.id ? 'text-white' : 'text-white/60'
-              }`}
+              className={`text-[17px] font-semibold cursor-pointer pointer-events-auto transition-colors duration-200 relative shadow-black drop-shadow-md ${currentTab === section.id ? 'text-white' : 'text-white/60'
+                }`}
               onClick={() => handleTabChange(section.id)}
             >
               {section.label}

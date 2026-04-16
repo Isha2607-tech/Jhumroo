@@ -1,10 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import VideoOverlay from './VideoOverlay';
 import AddToFavoritesModal from '../modals/AddToFavoritesModal';
 import { useAppContent } from '../../../../hooks/useAppContent';
 
 const VideoCard = ({ videoData, isActive }) => {
   const [playing, setPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const location = useLocation();
   const {
     isReelLiked,
     isReelSaved,
@@ -42,6 +45,14 @@ const VideoCard = ({ videoData, isActive }) => {
       }
     }
   }, [isActive]);
+
+  // Page switch pe sound mute kar do
+  useEffect(() => {
+    const isHomePage = location.pathname === '/';
+    if (!isHomePage && videoRef.current) {
+      videoRef.current.muted = true;
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     setIsLiked(isReelLiked(videoData.id));
@@ -147,7 +158,7 @@ const VideoCard = ({ videoData, isActive }) => {
         loop
         playsInline
         preload="auto"
-        muted={!isActive}
+        muted={isMuted || !isActive}
         src={videoData.url}
         poster={videoData.poster}
       ></video>
@@ -162,6 +173,8 @@ const VideoCard = ({ videoData, isActive }) => {
         shares={videoData.shares}
         isLiked={isLiked}
         isSaved={isSaved}
+        isMuted={isMuted}
+        onMuteToggle={() => setIsMuted(prev => !prev)}
         onSaveClick={handleSaveClick}
         onLikeClick={handleLikeClick}
       />
