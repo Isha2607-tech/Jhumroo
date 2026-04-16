@@ -17,6 +17,11 @@ import {
 } from 'react-icons/fi';
 import './WebsiteLandingPage.css';
 
+// Import Assets for Production
+import LogoImg from '../../assets/loginPage/Logo.png';
+import HeroImg from '../../assets/jhumroo_hero.png';
+import LandingImg from '../../assets/landing.png';
+
 const WebsiteLandingPage = () => {
   const [isTermsOpen, setIsTermsOpen] = React.useState(false);
 
@@ -69,7 +74,7 @@ const WebsiteLandingPage = () => {
       <nav className="w-nav">
         <Link to="/" className="w-logo">
           <div className="w-logo-box">
-            <img src="/src/assets/loginPage/Logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <img src={LogoImg} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           Jhumroo
         </Link>
@@ -124,7 +129,7 @@ const WebsiteLandingPage = () => {
 
           <div className="w-main-img-container">
             <img 
-              src="/src/assets/jhumroo_hero.png" 
+              src={HeroImg} 
               alt="Hero" 
               className="w-hero-img" 
             />
@@ -169,7 +174,7 @@ const WebsiteLandingPage = () => {
         <div className="w-about-content">
           <div className="w-about-image-container">
             <img 
-              src="/src/assets/landing.png" 
+              src={LandingImg} 
               alt="About Jhumroo" 
               className="w-about-img" 
             />
@@ -208,7 +213,7 @@ const WebsiteLandingPage = () => {
         <div className="w-footer-brand">
           <Link to="/" className="w-logo">
             <div className="w-logo-box">
-              <img src="/src/assets/loginPage/Logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src={LogoImg} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             Jhumroo
           </Link>
